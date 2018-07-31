@@ -1,0 +1,48 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(Seurat)
+library(scmap)
+library(SingleCellExperiment)
+```
+
+
+Data loading and inspection of the metadata.
+
+```{r}
+load('data/facs_Fat_seurat_tiss.Robj')
+head(tiss@meta.data)
+```
+
+
+```{r}
+unique(tiss@meta.data$subtissue)
+#SCAT=subqutaneous adipose tissue
+#GAT=gonadal adipose tissue (white, visceral) https://www.hindawi.com/journals/jobe/2011/490650/
+#BAT=brown adipose tissue
+#MAT=bone marrow adipose tissue 
+```
+
+```{r}
+unique(tiss@meta.data$annotation)
+```
+
+```{r}
+TSNEPlot(tiss, group.by='annotation', pt.size=0.5)
+```
+
+```{r}
+TSNEPlot(tiss, group.by='subtissue', pt.size=0.5)
+```
+
+I wonder why the subtissues are mixed here. In my analysis of the 14 10x samples tSNE clearly groups the subtissues apart, and they seem to use the same workflow here (https://github.com/czbiohub/tabula-muris/blob/master/computational_methods.md).
+//Probably because we have cultured cells?
+
+
+```{r}
+sce <- as.SingleCellExperiment(tiss)
+```
+

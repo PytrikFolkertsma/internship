@@ -1,0 +1,123 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+Tutorial:
+https://satijalab.org/seurat/cell_cycle_vignette.html
+
+
+```{r}
+library(Seurat)
+```
+
+
+```{r}
+seurobj <- readRDS('data/10x-normalized-scaled-clustered-tsne.rds')
+```
+
+Inspect genes that account for the largest variation in the dataset. (Cell cycle genes MKI67 and CENPF in PC1).
+
+```{r}
+PrintPCA(seurobj, pcs.print=1:10, genes.print=5)
+```
+
+Assign cell cycle scores.
+Assign each cell a score based on the expression of G2/M and S phase markers. The cell cycle marker genes are obtained from Tirosh et al, 2015. 
+
+```{r}
+cc.genes <- readLines('data/regev_lab_cell_cycle_genes.txt')
+s.genes <- cc.genes[1:43]
+g2m.genes <- cc.genes[44:97]
+seurobj <- CellCycleScoring(seurobj, s.genes = s.genes, g2m.genes = g2m.genes, set.ident = TRUE)
+head(seurobj@meta.data[22:24])
+```
+
+Visualize the distribution of some cell cycle markers. 
+Most cells seem to express neither of the markers here. 
+
+```{r}
+RidgePlot(seurobj, features.plot = c("PCNA", "TOP2A", "CENPF", "MKI67"), nCol = 2)
+```
+
+Plot the first two PCs, colored on cell cycle phase.
+The cell cycle effects clearly account for a large part of the variation in the dataset.
+
+```{r}
+PCAPlot(seurobj)
+```
+
+PCA only on cell cycle genes
+
+```{r}
+seurobj2 <- RunPCA(object = seurobj, pc.genes = c(s.genes, g2m.genes), do.print = FALSE)
+PCAPlot(object = seurobj2)
+```
+
+In the tSNE plot, cells of the same cell cycle group together.
+
+```{r}
+TSNEPlot(seurobj, pt.size=0.1)
+```
+
+
+```{r}
+TSNEPlot(seurobj, pt.size=0.1, group.by='sample_name', do.label = T)
+```
+
+
+Regress the cell cycle effects out.
+
+```{r}
+seurobj <- ScaleData(seurobj, vars.to.regress = c("nUMI", "percent.mito", "S.Score", "G2M.Score"), display.progress = T)
+saveRDS(seurobj, 'data/10x-normalized-scaled-clustered-ccregout.rds')
+```
+
+Check by plotting the first two PCs again.
+
+```{r}
+RunPCA(seurobj, pcs.compute=20)
+PCAPlot(seurobj)
+```
+
+And PCA only on cell cycle genes
+
+```{r}
+seurobj2 <- RunPCA(object = seurobj, pc.genes = c(s.genes, g2m.genes), do.print = FALSE)
+PCAPlot(object = seurobj2)
+```
+
+Run tSNE on the new data.
+Determine nr of PC's to use. 
+
+```{r}
+PCElbowPlot(seurobj)
+```
+
+Cells in different stages of the cell cycle are now more mixed. 
+
+```{r}
+seurobj <- RunTSNE(seurobj, reduction.use='pca', dims.use=1:12)
+TSNEPlot(seurobj, pt.size=0.1)
+```
+
+
+
+```{r}
+TSNEPlot(seurobj, group.by='sample_name', do.label=T, pt.size=0.1)
+```
+
+```{r}
+TSNEPlot(seurobj, group.by='sample_name2', pt.size=0.1)
+```
+
+```{r}
+
+```
+
+
+
+```{r}
+seurobj <- readRDS('data/10x-normalized-scaled-clustered-ccregout.rds')
+```
+

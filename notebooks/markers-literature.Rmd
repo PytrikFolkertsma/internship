@@ -1,0 +1,208 @@
+---
+title: "markers"
+output: html_document
+---
+
+```{r}
+library(Seurat)
+all10x <- readRDS('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/10x')
+```
+
+
+```{r}
+TSNEPlot(all10x, pt.size=0.1, group.by='sample_name')
+```
+
+In the Wolfrum paper they identified three clusters/subpopulations within their data. 
+Group1: stem cell specific gene expression
+Group2: high expression of pre-adipogenic markers
+Group3: adipogenesis-regulatory cells
+
+Markers group 1
+
+```{r}
+FeaturePlot(all10x, toupper(c('Limch1','Creb5','Dmrt2','Pi16','Smpd3','Il33')), cols.use = c("grey","blue"), nCol = 3, no.legend=F)
+#Not found: 'Plpp3', 'Car8'
+```
+
+```{r}
+VlnPlot(all10x, features.plot=toupper(c('Limch1','Creb5','Dmrt2','Pi16','Smpd3','Il33')), group.by='sample_name2', point.size.use=-1)
+```
+
+
+```{r}
+FeaturePlot(all10x, toupper(c('Col14a1','Klf3','Osr2','Pgr')), cols.use = c("grey","blue"), nCol = 2, no.legend=F)
+#Not found: 'Ly6c1', 'Cxcl13','Akr1c18'
+```
+
+```{r}
+VlnPlot(all10x, features.plot=toupper(c('Col14a1','Klf3','Osr2','Pgr')), group.by='sample_name2', point.size.use=-1)
+```
+
+
+All cells in their data had high expression of Cd34 (stem cell marker). Just to check here:
+
+```{r}
+FeaturePlot(all10x, toupper(c('Cd34')), cols.use = c("grey","blue"), no.legend=F)
+```
+
+Here it's not really the case. Their cells were probably collected at an earlier time point, as most of the genes plotted above are also not really expressed in our data. 
+
+Markers group2 (adipogenesis)
+Some are also expressed in our data, but not all of them. 
+
+```{r}
+FeaturePlot(all10x, toupper(c('Fosb','Egr1','Egr2','Stat3','Col5a3','Col6a3','Col3a1','Mafb')), cols.use = c("grey","blue"), nCol = 3, no.legend=F)
+```
+
+```{r}
+VlnPlot(all10x, features.plot=toupper(c('Fosb','Egr1','Egr2','Stat3','Col5a3','Col6a3','Col3a1','Mafb')), group.by='sample_name2', point.size.use=-1)
+```
+
+
+
+```{r}
+FeaturePlot(all10x, toupper(c('Col4a2','Col4a1','Lpl','Adam12','Sparcl1','Cdh11','Sept11','Peg3','Pparg')), cols.use = c("grey","blue"), nCol = 3, no.legend=F)
+```
+
+```{r}
+VlnPlot(all10x, features.plot=toupper(c('Col4a2','Col4a1','Lpl','Adam12','Sparcl1','Cdh11','Sept11','Peg3','Pparg')), group.by='sample_name2', point.size.use=-1)
+```
+
+
+Expression of Fabp4, which is associated with adipogenesis. In their data it was especially high expressed in group 2 (associated with adipogenesis). Does not really seem to be expressed in our data. 
+
+```{r}
+FeaturePlot(all10x, toupper(c('FABP4')), cols.use = c("grey","blue"), no.legend=F)
+```
+
+Markers group3 (adipogenesis regulatory cells)
+Again, some of them aren't expressed in our data and some of them are. 
+
+```{r}
+FeaturePlot(all10x, toupper(c('Fmo2','Dkk3','F3','Bgn','Mgp','C2')), cols.use = c("grey","blue"), nCol = 3, no.legend=F)
+```
+
+```{r}
+VlnPlot(all10x, features.plot=toupper(c('Fmo2','Dkk3','F3','Bgn','Mgp','C2')), group.by='sample_name2', point.size.use=-1)
+```
+
+
+```{r}
+FeaturePlot(all10x, toupper(c('Gdf10','Meox2','Cfh','Serping1','Nr2f2','Nfib')), cols.use = c("grey","blue"), nCol = 3, no.legend=F)
+```
+
+```{r}
+VlnPlot(all10x, features.plot=toupper(c('Gdf10','Meox2','Cfh','Serping1','Nr2f2','Nfib')), group.by='sample_name2', point.size.use=-1)
+```
+
+
+Check for mature adipogenic markers. Those were not expressed in their data. Same for our data.
+
+```{r}
+FeaturePlot(all10x, toupper(c('Adipoq','Cidec')), cols.use = c("grey","blue"), no.legend=F)
+```
+
+VlnPlots of some of the genes that seemed high expressed
+
+```{r}
+VlnPlot(all10x, features.plot=toupper(c('Nr2f2', 'Sept11', 'Col4a2', 'Col4a1', 'Adam12', 'Cdh11')), group.by='sample_name', point.size.use=-1, x.lab.rot = T, size.x.use=8, size.y.use=8)
+```
+
+
+Plotting some of the marker genes that were expressed for individual subtissues. There does not seem to be a lot of difference between subtissues. 
+
+
+Peri
+
+```{r}
+#Peri Subq Supra Visce
+subtissues <- all10x@meta.data$sample_name2
+
+FeaturePlot(all10x, cells.use=all10x@cell.names[which(subtissues %in% 'Peri')], toupper(c('Nr2f2', 'Sept11', 'Col4a2', 'Col4a1', 'Adam12', 'Cdh11')), cols.use = c("grey","blue"), nCol=3, no.legend=F)
+```
+
+Subq
+
+```{r}
+FeaturePlot(all10x, cells.use=all10x@cell.names[which(subtissues %in% 'Subq')], toupper(c('Nr2f2', 'Sept11', 'Col4a2', 'Col4a1', 'Adam12', 'Cdh11')), cols.use = c("grey","blue"), nCol=3)
+```
+
+Supra
+
+```{r}
+FeaturePlot(all10x, cells.use=all10x@cell.names[which(subtissues %in% 'Supra')], toupper(c('Nr2f2', 'Sept11', 'Col4a2', 'Col4a1', 'Adam12', 'Cdh11')), cols.use = c("grey","blue"), nCol=3)
+```
+
+Visce
+
+```{r}
+FeaturePlot(all10x, cells.use=all10x@cell.names[which(subtissues %in% 'Visce')], toupper(c('Nr2f2', 'Sept11', 'Col4a2', 'Col4a1', 'Adam12', 'Cdh11')), cols.use = c("grey","blue"), nCol=3)
+```
+
+
+```{r}
+VlnPlot(all10x, features.plot=c('NR2F2', 'SEPT11', 'COL4A2', 'COL4A1', 'ADAM12', 'CDH11'), group.by='sample_name2', point.size.use=-1)
+```
+
+
+Calculated markergene expression for subtissues. First some tSNE plots to see where the subtissues are. 
+
+```{r}
+TSNEPlot(all10x, group.by='sample_name2', pt.size=0.1)
+```
+
+
+```{r}
+subtissues <- all10x@meta.data$sample_name2
+t1 <- TSNEPlot(all10x, cells.use=all10x@cell.names[which(subtissues %in% 'Peri')], group.by='sample_name', pt.size=0.2)$plot
+t2 <- TSNEPlot(all10x, cells.use=all10x@cell.names[which(subtissues %in% 'Subq')], group.by='sample_name', pt.size=0.2)$plot
+t3 <- TSNEPlot(all10x, cells.use=all10x@cell.names[which(subtissues %in% 'Supra')], group.by='sample_name', pt.size=0.2)$plot
+t4 <- TSNEPlot(all10x, cells.use=all10x@cell.names[which(subtissues %in% 'Visce')], group.by='sample_name', pt.size=0.2)$plot
+plot_grid(t1, t2, t3, t4)
+```
+
+Peri
+
+```{r}
+FeaturePlot(all10x, c('TM4SF1', 'SRGN', 'MEST', 'RGS4', 'NEFM', 'PTX3'), cols.use = c("grey","blue"), nCol=3, no.legend=F)
+```
+
+Subq
+
+```{r}
+FeaturePlot(all10x, c('THBS1', 'TIMP3', 'RPS29', 'BCYRN1', 'DKK1', 'HAS2'), cols.use = c("grey","blue"), nCol=3, no.legend=F)
+```
+
+Supra
+
+```{r}
+VlnPlot(all10x, features.plot=c('IGFBP5', 'IGFBP3', 'AKAP12', 'DCN', 'IFI27', 'EFEMP1'), group.by='sample_name', nCol=3, point.size.use=-1, x.lab.rot=T)
+
+#FeaturePlot(all10x, c('IGFBP5', 'IGFBP3', 'AKAP12', 'DCN', 'IFI27', 'EFEMP1'), cols.use = c("grey","blue"), nCol=3, no.legend=F)
+```
+
+Visce
+
+```{r}
+#FeaturePlot(all10x, c('FTH1', 'IGFBP4', 'RPS2', 'PLAC9', 'MT2A', 'RPL13'), cols.use = c("grey","blue"), nCol=3, no.legend=F)
+VlnPlot(all10x, features.plot=c('FTH1', 'IGFBP4', 'RPS2', 'PLAC9', 'MT2A', 'RPL13'), group.by='sample_name', nCol=3, point.size.use=-1, x.lab.rot=T)
+```
+
+
+```{r}
+#Peri
+VlnPlot(all10x, features.plot=c('TM4SF1', 'SRGN', 'MEST', 'RGS4'), group.by='sample_name', point.size.use=-1, nCol=2, x.lab.rot = T)
+```
+
+
+```{r}
+#Subq
+VlnPlot(all10x, features.plot=c('THBS1', 'TIMP3', 'RPS29', 'BCYRN1'), group.by='sample_name', point.size.use=-1, nCol=2, x.lab.rot = T)
+```
+
+
+```{r}
+#first three genes are for supra, last three for visce
+VlnPlot(all10x, features.plot=c('IGFBP5', 'IGFBP3', 'AKAP12', 'FTH1', 'IGFBP4', 'RPS2'), group.by='sample_name2', point.size.use=-1)
+```

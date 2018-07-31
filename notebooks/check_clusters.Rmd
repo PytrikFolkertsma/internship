@@ -1,0 +1,87 @@
+---
+title: "R Notebook"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r}
+library(Seurat)
+library(dplyr)
+```
+
+
+```{r}
+all10x.aligned <- readRDS('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/10x-aligned')
+```
+
+Supra4 and Subq4
+
+```{r fig1, fig.height = 4, fig.width = 10, fig.align = "center"}
+supra4_cells <- rownames(all10x.aligned@meta.data)[which(all10x.aligned@meta.data$sample_name %in% 'Supra_4')]
+subq4_cells <- rownames(all10x.aligned@meta.data)[which(all10x.aligned@meta.data$sample_name %in% 'Subq_4')]
+
+d1 <- DimPlot(all10x.aligned, reduction.use='tsne', cells.highlight=supra4_cells, pt.size.use=0.1, cols.highlight = 'blue')
+d2 <- DimPlot(all10x.aligned, reduction.use='tsne', cells.highlight=subq4_cells, pt.size.use=0.1, cols.highlight = 'blue')
+plot_grid(d1, d2)
+```
+
+
+
+Per subtissue
+
+Peri
+
+```{r fig2, fig.height = 8, fig.width = 10, fig.align = "center"}
+peri1_cells <- rownames(all10x.aligned@meta.data)[which(all10x.aligned@meta.data$sample_name %in% 'Peri_1')]
+peri2_cells <- rownames(all10x.aligned@meta.data)[which(all10x.aligned@meta.data$sample_name %in% 'Peri_2')]
+peri3_cells <- rownames(all10x.aligned@meta.data)[which(all10x.aligned@meta.data$sample_name %in% 'Peri_3')]
+
+d1 <- DimPlot(all10x.aligned, reduction.use='tsne', cells.highlight=peri1_cells, pt.size.use=0.1, cols.highlight = 'blue')
+d2 <- DimPlot(all10x.aligned, reduction.use='tsne', cells.highlight=peri2_cells, pt.size.use=0.1, cols.highlight = 'blue')
+d3 <- DimPlot(all10x.aligned, reduction.use='tsne', cells.highlight=peri3_cells, pt.size.use=0.1, cols.highlight = 'blue')
+plot_grid(d1, d2, d3)
+```
+
+Supra 
+
+```{r fig3, fig.height = 8, fig.width = 10, fig.align = "center"}
+supra1_cells <- rownames(all10x.aligned@meta.data)[which(all10x.aligned@meta.data$sample_name %in% 'Supra_1')]
+supra2_cells <- rownames(all10x.aligned@meta.data)[which(all10x.aligned@meta.data$sample_name %in% 'Supra_2')]
+supra3_cells <- rownames(all10x.aligned@meta.data)[which(all10x.aligned@meta.data$sample_name %in% 'Supra_3')]
+
+d1 <- DimPlot(all10x.aligned, reduction.use='tsne', cells.highlight=supra1_cells, pt.size.use=0.1, cols.highlight = 'blue')
+d2 <- DimPlot(all10x.aligned, reduction.use='tsne', cells.highlight=supra2_cells, pt.size.use=0.1, cols.highlight = 'blue')
+d3 <- DimPlot(all10x.aligned, reduction.use='tsne', cells.highlight=supra3_cells, pt.size.use=0.1, cols.highlight = 'blue')
+d4 <- DimPlot(all10x.aligned, reduction.use='tsne', cells.highlight=supra4_cells, pt.size.use=0.1, cols.highlight = 'blue')
+plot_grid(d1, d2, d3, d4)
+```
+
+Subq 
+
+```{r fig4, fig.height = 8, fig.width = 10, fig.align = "center"}
+subq1_cells <- rownames(all10x.aligned@meta.data)[which(all10x.aligned@meta.data$sample_name %in% 'Subq_1')]
+subq2_cells <- rownames(all10x.aligned@meta.data)[which(all10x.aligned@meta.data$sample_name %in% 'Subq_2')]
+subq3_cells <- rownames(all10x.aligned@meta.data)[which(all10x.aligned@meta.data$sample_name %in% 'Subq_3')]
+subq4_cells <- rownames(all10x.aligned@meta.data)[which(all10x.aligned@meta.data$sample_name %in% 'Subq_4')]
+
+d1 <- DimPlot(all10x.aligned, reduction.use='tsne', cells.highlight=subq1_cells, pt.size.use=0.1, cols.highlight = 'blue')
+d2 <- DimPlot(all10x.aligned, reduction.use='tsne', cells.highlight=subq2_cells, pt.size.use=0.1, cols.highlight = 'blue')
+d3 <- DimPlot(all10x.aligned, reduction.use='tsne', cells.highlight=subq3_cells, pt.size.use=0.1, cols.highlight = 'blue')
+d4 <- DimPlot(all10x.aligned, reduction.use='tsne', cells.highlight=subq4_cells, pt.size.use=0.1, cols.highlight = 'blue')
+plot_grid(d1, d2, d3, d4)
+```
+
+Visce
+
+```{r fig5, fig.height = 8, fig.width = 10, fig.align = "center"}
+visce1_cells <- rownames(all10x.aligned@meta.data)[which(all10x.aligned@meta.data$sample_name %in% 'Visce_1')]
+visce2_cells <- rownames(all10x.aligned@meta.data)[which(all10x.aligned@meta.data$sample_name %in% 'Visce_2')]
+visce3_cells <- rownames(all10x.aligned@meta.data)[which(all10x.aligned@meta.data$sample_name %in% 'Visce_3')]
+
+d1 <- DimPlot(all10x.aligned, reduction.use='tsne', cells.highlight=visce1_cells, pt.size.use=0.1, cols.highlight = 'blue')
+d2 <- DimPlot(all10x.aligned, reduction.use='tsne', cells.highlight=visce2_cells, pt.size.use=0.1, cols.highlight = 'blue')
+d3 <- DimPlot(all10x.aligned, reduction.use='tsne', cells.highlight=visce3_cells, pt.size.use=0.1, cols.highlight = 'blue')
+plot_grid(d1, d2, d3)
+```
+

@@ -1,0 +1,153 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+Setup:
+1. Trajectories
+2. Trajectories cell cycle regressed out
+3. Trajectories cell cycle + nUMI + percent.mito regressed out
+4. Trajectories nUMI + percent.mito regressed out
+
+
+```{r}
+.libPaths('/home/cbmr/pytrik/libraries/')
+setwd('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/notebooks/')
+library(monocle)
+library(Seurat)
+```
+
+Analyzing trajectories per depot (cc effect, nUmi and percent.mito not regressed out here).
+
+```{r}
+peri <- readRDS('../data/monocle/10x_monocle_Peri')
+visce <- readRDS('../data/monocle/10x_monocle_Visce')
+subq <- readRDS('../data/monocle/10x_monocle_Subq')
+supra <- readRDS('../data/monocle/10x_monocle_Supra')
+
+pData(peri)['samplename'] <- pData(peri)['sample_name']
+pData(visce)['samplename'] <- pData(visce)['sample_name']
+pData(subq)['samplename'] <- pData(subq)['sample_name']
+pData(supra)['samplename'] <- pData(supra)['sample_name']
+
+```
+
+##1. Cell trajectories
+Cell trajectories per depot, colored on sample. 
+
+```{r}
+plot_grid(plot_cell_trajectory(peri, color_by='samplename', cell_size=0.5),
+          plot_cell_trajectory(visce, color_by='samplename', cell_size=0.5),
+          plot_cell_trajectory(subq, color_by='samplename', cell_size=0.5),
+          plot_cell_trajectory(supra, color_by='samplename', cell_size=0.5),
+          labels = c('Peri', 'Visce', 'Subq', 'Supra'))
+```
+
+And colored on cell cycle state. 
+
+```{r}
+plot_grid(plot_cell_trajectory(peri, color_by='Phase', cell_size=0.5),
+          plot_cell_trajectory(visce, color_by='Phase', cell_size=0.5),
+          plot_cell_trajectory(subq, color_by='Phase', cell_size=0.5),
+          plot_cell_trajectory(supra, color_by='Phase', cell_size=0.5),
+          labels = c('Peri', 'Visce', 'Subq', 'Supra'))
+```
+
+##2. Trajectories with nUMI and percent.mito regressed out
+
+Look at the cell trajectories of the depots with nUMI and percent.mito regressed out. 
+
+```{r}
+peri.numi.pm <- readRDS('../data/monocle/10x_monocle_Peri_pm-umi')
+visce.numi.pm <- readRDS('../data/monocle/10x_monocle_Visce_pm-umi')
+subq.numi.pm <- readRDS('../data/monocle/10x_monocle_Subq_pm-umi')
+supra.numi.pm <- readRDS('../data/monocle/10x_monocle_Supra_pm-umi')
+
+pData(peri.numi.pm)['samplename'] <- pData(peri.numi.pm)['sample_name']
+pData(visce.numi.pm)['samplename'] <- pData(visce.numi.pm)['sample_name']
+pData(subq.numi.pm)['samplename'] <- pData(subq.numi.pm)['sample_name']
+pData(supra.numi.pm)['samplename'] <- pData(supra.numi.pm)['sample_name']
+```
+
+Cell trajectories colored on sample.
+
+```{r}
+plot_grid(plot_cell_trajectory(peri.numi.pm, color_by='samplename', cell_size=0.5),
+          plot_cell_trajectory(visce.numi.pm, color_by='samplename', cell_size=0.5),
+          plot_cell_trajectory(subq.numi.pm, color_by='samplename', cell_size=0.5),
+          plot_cell_trajectory(supra.numi.pm, color_by='samplename', cell_size=0.5),
+          labels = c('Peri', 'Visce', 'Subq', 'Supra'))
+```
+
+```{r}
+plot_grid(plot_cell_trajectory(peri.numi.pm, color_by='Phase', cell_size=0.5),
+          plot_cell_trajectory(visce.numi.pm, color_by='Phase', cell_size=0.5),
+          plot_cell_trajectory(subq.numi.pm, color_by='Phase', cell_size=0.5),
+          plot_cell_trajectory(supra.numi.pm, color_by='Phase', cell_size=0.5),
+          labels = c('Peri', 'Visce', 'Subq', 'Supra'))
+```
+
+##3. Trajectories with cell cycle regressed out
+
+```{r}
+#setwd('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/')
+peri.cc <- readRDS('../data/monocle/10x_monocle_Peri-cc')
+visce.cc <- readRDS('../data/monocle/10x_monocle_Visce-cc')
+subq.cc <- readRDS('../data/monocle/10x_monocle_Subq-cc')
+supra.cc <- readRDS('../data/monocle/10x_monocle_Supra-cc')
+
+pData(peri.cc)['samplename'] <- pData(peri.cc)['sample_name']
+pData(visce.cc)['samplename'] <- pData(visce.cc)['sample_name']
+pData(subq.cc)['samplename'] <- pData(subq.cc)['sample_name']
+pData(supra.cc)['samplename'] <- pData(supra.cc)['sample_name']
+```
+
+
+```{r}
+plot_grid(plot_cell_trajectory(peri.cc, color_by='samplename', cell_size=0.5),
+          plot_cell_trajectory(visce.cc, color_by='samplename', cell_size=0.5),
+          plot_cell_trajectory(subq.cc, color_by='samplename', cell_size=0.5),
+          plot_cell_trajectory(supra.cc, color_by='samplename', cell_size=0.5),
+          labels = c('Peri', 'Visce', 'Subq', 'Supra'))
+```
+
+```{r}
+plot_grid(plot_cell_trajectory(peri.cc, color_by='Phase', cell_size=0.5),
+          plot_cell_trajectory(visce.cc, color_by='Phase', cell_size=0.5),
+          plot_cell_trajectory(subq.cc, color_by='Phase', cell_size=0.5),
+          plot_cell_trajectory(supra.cc, color_by='Phase', cell_size=0.5),
+          labels = c('Peri', 'Visce', 'Subq', 'Supra'))
+```
+
+
+##4. Trajectories with cell cycle, percent.mito and nUMI regressed out
+
+```{r}
+peri.ccout3 <- readRDS('../data/monocle/10x_monocle_Peri_pm-umi-cc')
+visce.ccout3 <- readRDS('../data/monocle/10x_monocle_Visce_pm-umi-cc')
+subq.ccout3 <- readRDS('../data/monocle/10x_monocle_Subq_pm-umi-cc')
+supra.ccout3 <- readRDS('../data/monocle/10x_monocle_Supra_pm-umi-cc')
+
+pData(peri.ccout3)['samplename'] <- pData(peri.ccout3)['sample_name']
+pData(visce.ccout3)['samplename'] <- pData(visce.ccout3)['sample_name']
+pData(subq.ccout3)['samplename'] <- pData(subq.ccout3)['sample_name']
+pData(supra.ccout3)['samplename'] <- pData(supra.ccout3)['sample_name']
+
+plot_grid(plot_cell_trajectory(peri.ccout3, color_by='samplename', cell_size=0.5),
+          plot_cell_trajectory(visce.ccout3, color_by='samplename', cell_size=0.5),
+          plot_cell_trajectory(subq.ccout3, color_by='samplename', cell_size=0.5),
+          plot_cell_trajectory(supra.ccout3, color_by='samplename', cell_size=0.5),
+          labels = c('Peri', 'Visce', 'Subq', 'Supra'))
+```
+
+
+
+```{r}
+plot_grid(plot_cell_trajectory(peri.ccout3, color_by='Phase', cell_size=0.5),
+          plot_cell_trajectory(visce.ccout3, color_by='Phase', cell_size=0.5),
+          plot_cell_trajectory(subq.ccout3, color_by='Phase', cell_size=0.5),
+          plot_cell_trajectory(supra.ccout3, color_by='Phase', cell_size=0.5),
+          labels = c('Peri', 'Visce', 'Subq', 'Supra'))
+```
+
+

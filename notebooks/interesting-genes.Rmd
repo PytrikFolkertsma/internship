@@ -1,0 +1,54 @@
+---
+title: "R Notebook"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r}
+library(Seurat)
+all10x <- readRDS('../../data/10x')
+```
+
+#Marker genes
+
+Interesting to see that none of the marker genes have a higher expression in the associated sample, it's only expressed in more cells. No genes are really convincing. 
+
+Both a wilcoxon test and negative binomial test were used to find marker genes, but they had almost similar results. 
+
+TM4SF1 and LY6K markers for Supra and Peri. 
+The intersection of Visceral en Subcutaneous yielded no interesting genes.
+TM4SF1 = top marker Peri
+MEST = 4th marker Peri
+IGFBP5 = top marker Supra
+BARX1 = marker gene Visce
+TNFRSF11B = marker Supra
+
+
+```{r fig1, fig.height = 9, fig.width = 10, fig.align = "center"}
+VlnPlot(all10x, features.plot=toupper(c('TM4SF1', 'LY6K', 'IGFBP5', 'MEST', 'BARX1', 'TNFRSF11B')), group.by='sample_name', point.size.use=-1, nCol=2, x.lab.rot=T, size.x.use=10)
+```
+
+
+#Markers mentioned in literature
+
+The marker genes for adipocyte precursors mentioned in literature were either expressed in all of the samples or in none at all. There were no genes that distinguished subtissues from each other.
+The marker gene (F3 expressing CD142) mentioned in the Wolfrum paper for adipogenesis regulatory cells is expressed in some of our cells, so some of our cells could be adipogenesis regulatory cells. 
+EBF2 was identified by Wang et al. as marker for brown/beige precursor cells in mice. Ebf2 is expressed in all samples, but in more cells from perirenal and supraclavicular than in subcutaneous and visceral. Could be interesting. 
+
+```{r fig4, fig.height = 3, fig.width = 10, fig.align = "center"}
+VlnPlot(all10x, features.plot=toupper(c('F3', 'EBF2')), group.by='sample_name', point.size.use=-1, nCol=2, x.lab.rot=T, size.x.use=10)
+```
+
+#Markers for cluster 12 containing cells from all samples
+
+```{r fig3, fig.height = 15, fig.width = 10, fig.align = "center"}
+VlnPlot(all10x, features.plot=toupper(c('ACTB', 'TPM2', 'ANXA2', 'LDHA', 'PRDX1', 'MYL12B', 'MYL12A', 'CCND1', 'RAB13', 'MAP1B')), group.by='res.0.5', point.size.use=-1, nCol=2, x.lab.rot=T, size.x.use=10)
+```
+
+
+#Sample outliers
+
+```{r fig2, fig.height = 15, fig.width = 10, fig.align = "center"}
+VlnPlot(all10x, features.plot=toupper(c('MTRNR2L1', 'FTH1', 'GUK1', 'RPS2', 'RPS29', 'BCYRN1', 'RPL36A', 'ATP5I', 'AC009501.4', 'RPS10')), group.by='sample_name', point.size.use=-1, nCol=2, x.lab.rot=T, size.x.use=10)
+```

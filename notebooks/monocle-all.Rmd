@@ -1,0 +1,102 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+
+```{r}
+.libPaths('/home/cbmr/pytrik/libraries/')
+setwd('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/scripts-10x-analysis/notebooks/')
+library(monocle)
+library(Seurat)
+```
+
+
+```{r}
+data1 <- readRDS('../../data/monocle/10x-monocle-downsampled-27')
+data2 <- readRDS('../../data/monocle/10x-monocle-downsampled-36')
+data3 <- readRDS('../../data/monocle/10x-monocle-downsampled-42')
+data4 <- readRDS('../../data/monocle/10x-monocle-downsampled-99')
+data1.cc <- readRDS('../../data/monocle/10x-monocle-downsampled-27-cc')
+data2.cc <- readRDS('../../data/monocle/10x-monocle-downsampled-36-cc')
+data3.cc<- readRDS('../../data/monocle/10x-monocle-downsampled-42-cc')
+data4.cc <- readRDS('../../data/monocle/10x-monocle-downsampled-99-cc')
+data1.pm.umi <- readRDS('../../data/monocle/10x-monocle-downsampled-27-pm-umi')
+data2.pm.umi <- readRDS('../../data/monocle/10x-monocle-downsampled-36-pm-umi')
+data3.pm.umi <- readRDS('../../data/monocle/10x-monocle-downsampled-42-pm-umi')
+data4.pm.umi <- readRDS('../../data/monocle/10x-monocle-downsampled-99-pm-umi')
+data1.pm.umi.cc <- readRDS('../../data/monocle/10x-monocle-downsampled-27-pm-umi-cc')
+data2.pm.umi.cc <- readRDS('../../data/monocle/10x-monocle-downsampled-36-pm-umi-cc')
+data3.pm.umi.cc <- readRDS('../../data/monocle/10x-monocle-downsampled-42-pm-umi-cc')
+data4.pm.umi.cc <- readRDS('../../data/monocle/10x-monocle-downsampled-99-pm-umi-cc')
+
+#set colnames
+colnames(pData(data1)) <- replace(colnames(pData(data1)), colnames(pData(data1)) =='sample_name', 'samplename')
+colnames(pData(data1.cc)) <- replace(colnames(pData(data1.cc)), colnames(pData(data1.cc)) =='sample_name', 'samplename')
+colnames(pData(data1.pm.umi)) <- replace(colnames(pData(data1.pm.umi)), colnames(pData(data1.pm.umi)) =='sample_name', 'samplename')
+colnames(pData(data1.pm.umi.cc)) <- replace(colnames(pData(data1.pm.umi.cc)), colnames(pData(data1.pm.umi.cc)) =='sample_name', 'samplename')
+```
+
+Just to check if the trajectories look the same when using different downsampled datasets. 
+
+```{r}
+plot_grid(plot_cell_trajectory(data1, color_by='Phase', cell_size=0.5),
+          plot_cell_trajectory(data2, color_by='Phase', cell_size=0.5),
+          plot_cell_trajectory(data3, color_by='Phase', cell_size=0.5),
+          plot_cell_trajectory(data4, color_by='Phase', cell_size=0.5))
+```
+
+
+```{r}
+plot_grid(plot_cell_trajectory(data1.pm.umi, color_by='Phase', cell_size=0.5),
+          plot_cell_trajectory(data2.pm.umi, color_by='Phase', cell_size=0.5),
+          plot_cell_trajectory(data3.pm.umi, color_by='Phase', cell_size=0.5),
+          plot_cell_trajectory(data4.pm.umi, color_by='Phase', cell_size=0.5))
+```
+
+```{r}
+plot_grid(plot_cell_trajectory(data1.cc, color_by='Phase', cell_size=0.5),
+          plot_cell_trajectory(data2.cc, color_by='Phase', cell_size=0.5),
+          plot_cell_trajectory(data3.cc, color_by='Phase', cell_size=0.5),
+          plot_cell_trajectory(data4.cc, color_by='Phase', cell_size=0.5))
+```
+
+```{r}
+plot_grid(plot_cell_trajectory(data1.pm.umi.cc, color_by='Phase', cell_size=0.5),
+          plot_cell_trajectory(data2.pm.umi.cc, color_by='Phase', cell_size=0.5),
+          plot_cell_trajectory(data3.pm.umi.cc, color_by='Phase', cell_size=0.5),
+          plot_cell_trajectory(data4.pm.umi.cc, color_by='Phase', cell_size=0.5))
+```
+
+
+```{r fig1, fig.height = 7, fig.width = 10, fig.align = "center"}
+plot_cell_trajectory(data1, color_by = "res.0.5") +
+    facet_wrap(~res.0.5, nrow = 3)
+```
+
+```{r fig1, fig.height = 7, fig.width = 10, fig.align = "center"}
+plot_cell_trajectory(data1.pm.umi, color_by = "res.0.5") +
+    facet_wrap(~res.0.5, nrow = 3)
+```
+
+```{r fig1, fig.height = 7, fig.width = 10, fig.align = "center"}
+plot_cell_trajectory(data1.cc, color_by = "res.0.5") +
+    facet_wrap(~res.0.5, nrow = 3)
+```
+
+```{r fig1, fig.height = 7, fig.width = 10, fig.align = "center"}
+plot_cell_trajectory(data1.pm.umi.cc, color_by = "res.0.5") +
+    facet_wrap(~res.0.5, nrow = 3)
+```
+
+
+
+
+```{r fig1, fig.height = 7, fig.width = 10, fig.align = "center"}
+plot_cell_trajectory(data1, color_by = "samplename", cell_size=0.2, show_branch_points=F) +
+    facet_wrap(~samplename, nrow = 3)
+```
+
+
+

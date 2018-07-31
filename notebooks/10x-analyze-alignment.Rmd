@@ -1,0 +1,94 @@
+---
+title: "R Notebook"
+output:
+  html_document:
+    df_print: paged
+---
+
+
+```{r}
+setwd('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/notebooks/')
+.libPaths('/home/cbmr/pytrik/libraries/')
+library(Seurat)
+```
+
+For the alignment 30 subspaces were aligned. Below datasets are loaded with different runs of tSNE (on the first 10, 20 and 30 aligned CC's).
+
+```{r}
+aligned.10 <- readRDS('../data/10x_cca30-aligned_tsne-1-10.rds')
+aligned.20 <- readRDS('../data/10x_cca30-aligned_tsne-1-20.rds')
+aligned.30 <- readRDS('../data/10x_cca30-aligned_tsne-1-30.rds')
+
+aligned.cc.10 <- readRDS('../data/10x_ccregout_cca30-aligned_tsne-1-10.rds')
+aligned.cc.20 <- readRDS('../data/10x_ccregout_cca30-aligned_tsne-1-20.rds')
+aligned.cc.30 <- readRDS('../data/10x_ccregout_cca30-aligned_tsne-1-30.rds')
+```
+
+TSNEPlots
+
+```{r}
+TSNEPlot(aligned.10, group.by='sample_name', pt.size=0.1)
+```
+
+```{r}
+TSNEPlot(aligned.10, group.by='Phase', pt.size=0.1)
+```
+
+```{r}
+TSNEPlot(aligned.20, group.by='sample_name', pt.size=0.1)
+```
+
+```{r}
+TSNEPlot(aligned.20, group.by='Phase', pt.size=0.1)
+```
+
+```{r}
+TSNEPlot(aligned.30, group.by='sample_name2', pt.size=0.1)
+```
+
+
+```{r}
+TSNEPlot(aligned.30, group.by='sample_name', pt.size=0.1)
+```
+
+```{r}
+TSNEPlot(aligned.30, group.by='Phase', pt.size=0.1)
+```
+
+TSNEPlots of alignment on CC regressed out data.
+
+```{r}
+TSNEPlot(aligned.cc.10, group.by='sample_name', pt.size=0.1)
+```
+
+```{r}
+TSNEPlot(aligned.cc.10, group.by='Phase', pt.size=0.1)
+```
+
+```{r}
+TSNEPlot(aligned.cc.10, group.by='sample_name2', pt.size=0.1)
+```
+
+
+```{r}
+TSNEPlot(aligned.cc.20, group.by='sample_name', pt.size=0.1)
+```
+
+```{r}
+TSNEPlot(aligned.cc.20, group.by='sample_name2', pt.size=0.1)
+```
+
+
+```{r}
+TSNEPlot(aligned.cc.20, group.by='Phase', pt.size=0.1)
+```
+
+
+```{r}
+TSNEPlot(aligned.cc.30, group.by='sample_name', pt.size=0.1)
+```
+
+```{r}
+TSNEPlot(aligned.cc.30, group.by='sample_name2', pt.size=0.1)
+```
+

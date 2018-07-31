@@ -1,0 +1,259 @@
+---
+title: "R Notebook"
+output:
+  html_document:
+    df_print: paged
+    toc: true
+    toc_float: 
+      smooth_scroll: true
+---
+
+Analysis of the 10x samples.
+- tSNE plots
+- Cell cycle regression
+- PCA 
+- Alignment
+- Marker gene expression
+- tSNE colored on metadata
+
+```{r}
+library(Seurat)
+library(ggplot2)
+all10x <- readRDS('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/10x')
+```
+
+#tSNE Plots
+
+Below are several tSNE plots of the 10x data. tSNE was performed on the first 15 principal components of the log-normalized scaled (nUMI and percent.mito regressed out) data.
+
+Visceral and perirenal seem a bit mixed, and supraclavicular and subcutaneous too. 
+
+```{r}
+TSNEPlot(all10x, pt.size=0.1, group.by='sample_name', do.label=T)
+```
+
+tSNE plots of samples within their subtissue.
+Peri2 and Peri3 seem to overlap really well, as well as Supra1 and Supra2, and Visce1 and Visce3.
+
+```{r results='hide'}
+subtissues <- all10x@meta.data$sample_name2
+t1 <- TSNEPlot(all10x, cells.use=all10x@cell.names[which(subtissues %in% 'Peri')], group.by='sample_name', pt.size=0.2)$plot
+t2 <- TSNEPlot(all10x, cells.use=all10x@cell.names[which(subtissues %in% 'Subq')], group.by='sample_name', pt.size=0.2)$plot
+t3 <- TSNEPlot(all10x, cells.use=all10x@cell.names[which(subtissues %in% 'Supra')], group.by='sample_name', pt.size=0.2)$plot
+t4 <- TSNEPlot(all10x, cells.use=all10x@cell.names[which(subtissues %in% 'Visce')], group.by='sample_name', pt.size=0.2)$plot
+```
+
+
+```{r}
+#plot_grid(t1, t2, t3, t4)
+```
+
+
+tSNE colored on subtissue.
+
+```{r}
+TSNEPlot(all10x, group.by='sample_name2', pt.size=0.1)
+```
+
+tSNE colored by cell cycle phase. 
+
+```{r}
+TSNEPlot(all10x, group.by='Phase', pt.size=0.1)
+```
+
+Some clustering with different resolutions.
+res=0.5
+
+```{r}
+TSNEPlot(all10x, pt.size=0.1, group.by='res.0.5', do.label=T)
+```
+
+res=0.6
+
+```{r}
+TSNEPlot(all10x, pt.size=0.1, group.by='res.0.6')
+```
+
+res=0.7
+
+```{r}
+TSNEPlot(all10x, pt.size=0.1, group.by='res.0.7', do.label=T)
+```
+
+res=0.8
+
+```{r}
+TSNEPlot(all10x, pt.size=0.1, group.by='res.0.8', do.label=T)
+```
+
+res=0.9
+
+```{r}
+TSNEPlot(all10x, pt.size=0.1, group.by='res.0.9', do.label=T)
+```
+
+res=1
+
+```{r}
+TSNEPlot(all10x, pt.size=0.1, group.by='res.1', do.label=T)
+```
+
+#Cell cycle regression
+
+```{r}
+all10x.ccregout <- readRDS('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/10x-ccregout')
+```
+
+tSNE of the cell cycle regressed out. There does not seem to be a lot of structure within samples now. 
+
+```{r}
+TSNEPlot(all10x.ccregout, pt.size=0.1, group.by='sample_name')
+```
+
+
+```{r}
+TSNEPlot(all10x.ccregout, pt.size=0.1, group.by='Phase')
+```
+
+Subtissues
+
+```{r}
+subtissues <- all10x.ccregout@meta.data$sample_name2
+t1 <- TSNEPlot(all10x.ccregout, cells.use=all10x.ccregout@cell.names[which(subtissues %in% 'Peri')], group.by='sample_name', pt.size=0.2)$plot
+t2 <- TSNEPlot(all10x.ccregout, cells.use=all10x.ccregout@cell.names[which(subtissues %in% 'Subq')], group.by='sample_name', pt.size=0.2)$plot
+t3 <- TSNEPlot(all10x.ccregout, cells.use=all10x.ccregout@cell.names[which(subtissues %in% 'Supra')], group.by='sample_name', pt.size=0.2)$plot
+t4 <- TSNEPlot(all10x.ccregout, cells.use=all10x.ccregout@cell.names[which(subtissues %in% 'Visce')], group.by='sample_name', pt.size=0.2)$plot
+#plot_grid(t1, t2, t3, t4)
+```
+
+
+#PCA
+
+Some PCA plots. PC1 seems to capture cell cycle effects, and PC2 seems to capture some of the sample variability. 
+
+```{r}
+PCAPlot(all10x, group.by='Phase', pt.size=0.1)
+```
+
+```{r}
+PCAPlot(all10x, group.by='sample_name', pt.size=0.1)
+```
+
+PCA plot of the cell cycle regressed out data. There is no cell cycle effect anymore. 
+
+```{r}
+PCAPlot(all10x.ccregout, group.by='Phase', pt.size=0.1)
+```
+
+```{r}
+PCAPlot(all10x.ccregout, group.by='sample_name', pt.size=0.1)
+```
+
+#Alignment
+
+Alignment of the data with and without cell cycle effects regressed out. Both were aligned on 30 subspaces, tSNE was performed on the first 15 CCs. 
+
+```{r}
+data.aligned <- readRDS('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/10x-aligned')
+data.aligned.ccregout <- readRDS('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/10x-ccregout-aligned')
+```
+
+tSNE of the aligned data.
+
+```{r}
+TSNEPlot(data.aligned, group.by='sample_name', pt.size=0.1)
+```
+
+tSNE of the aligned data coloured on cell cycle phase.
+
+```{r}
+TSNEPlot(data.aligned, group.by='Phase', pt.size=0.1)
+```
+
+
+tSNE of the aligned data with cell cycle effects regressed out.
+
+```{r}
+TSNEPlot(data.aligned.ccregout, group.by='sample_name', pt.size=0.1)
+```
+
+tSNE of the aligned data with cell cycle effects regressed out, colored by phase.
+
+```{r}
+TSNEPlot(data.aligned.ccregout, group.by='Phase', pt.size=0.1)
+```
+
+tSNE of the aligned data with cell cycle effects regressed out, colored by subtissue
+
+```{r}
+TSNEPlot(data.aligned.ccregout, group.by='sample_name2', pt.size=0.1)
+```
+
+
+#Marker gene expression
+
+
+```{r}
+
+```
+
+
+#Metadata
+
+
+```{r}
+FeaturePlot(all10x, c("nGene"), cols.use = c("grey","blue"), no.legend=F)
+```
+
+```{r}
+FeaturePlot(all10x, c("percent.mito"), cols.use = c("grey","blue"), no.legend=F)
+```
+
+
+```{r}
+FeaturePlot(all10x, c("nUMI"), cols.use = c("grey","blue"), no.legend=F)
+```
+
+Diff
+
+```{r}
+TSNEPlot(all10x, group.by='diff', pt.size=0.1)
+```
+
+ucp1.ctrl
+
+```{r}
+TSNEPlot(all10x, group.by='ucp1.ctrl', pt.size=0.1)
+```
+
+ucp1.ne
+
+```{r}
+TSNEPlot(all10x, group.by='ucp1.ne', pt.size=0.1)
+```
+
+bmi
+
+```{r}
+TSNEPlot(all10x, group.by='bmi', pt.size=0.1)
+```
+
+age 
+
+```{r}
+TSNEPlot(all10x, group.by='age', pt.size=0.1)
+```
+
+
+```{r}
+VlnPlot(all10x, group.by='sample_name', features.plot=c('nGene'), point.size.use = -1, x.lab.rot=T)
+```
+
+```{r}
+VlnPlot(all10x, group.by='sample_name', features.plot=c('nUMI'), point.size.use = -1, x.lab.rot=T)
+```
+
+```{r}
+VlnPlot(all10x, group.by='sample_name', features.plot=c('percent.mito'), point.size.use = -1, x.lab.rot=T)
+```
+
