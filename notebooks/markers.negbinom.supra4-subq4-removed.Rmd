@@ -1,0 +1,131 @@
+---
+title: "R Notebook"
+output:
+  html_document:
+    df_print: paged
+    toc: true
+    toc_float: 
+      smooth_scroll: true
+---
+
+
+
+```{r}
+library(VennDiagram)
+library(Seurat)
+```
+
+
+```{r}
+load('../../data/markergenes/markergenes-crossed.negbinom.supra4-subq4-removed')
+markers <- df.cluster_markers
+```
+
+Marker genes of the intersection of Supra and Peri. Supra has 111 marker genes, Peri 54. They have 15 genes in common.
+
+```{r}
+genes.peri <- markers[markers$cluster == 'Peri.white', 'gene']
+genes.supra <- markers[markers$cluster == 'Supra.white', 'gene']
+peri.supra <- intersect(genes.peri, genes.supra)
+
+grid.newpage()
+draw.pairwise.venn(length(genes.peri), length(genes.supra), length(peri.supra), category=c('Peri', 'Supra'), lty=rep('blank', 2), fill=c('#f67770', '#1fbfc3'), scaled=T, cat.fontfamily = rep("helvetica", 2))
+```
+
+Marker genes of the intersection of Subq and Visce. Subq has 91 marker genes, Visce 11. They have only 2 genes in common.
+
+```{r}
+genes.visce <- markers[markers$cluster == 'Visce.brown', 'gene']
+genes.subq <- markers[markers$cluster == 'Subq.brown', 'gene']
+visce.subq <- intersect(genes.visce, genes.subq)
+
+grid.newpage()
+draw.pairwise.venn(length(genes.visce), length(genes.subq), length(visce.subq), category=c('Visce', 'Subq'), lty=rep('blank', 2), fill=c('#c680fc', '#7dac1f'), scaled=T, cat.fontfamily = rep("helvetica", 2))
+```
+
+```{r}
+all10x <- readRDS('../../data/10x')
+```
+
+#Markers intersection Peri and Supra
+
+```{r}
+print(peri.supra)
+```
+
+```{r}
+markers[which(markers$gene %in% peri.supra),]
+```
+
+```{r}
+markers.peri.supra <- unique(markers[which(markers$gene %in% peri.supra),'gene'])
+```
+
+
+```{r fig1, fig.height = 24, fig.width = 10, fig.align = "center"}
+VlnPlot(all10x, features.plot=markers.peri.supra, group.by='sample_name', point.size.use=-1, nCol=2, x.lab.rot=T, size.x.use=10)
+```
+
+#Markers intersection Subq and Visce
+
+```{r}
+print(visce.subq)
+```
+
+```{r}
+print(markers[which(markers$gene %in% visce.subq),])
+```
+
+
+```{r fig2, fig.height = 3, fig.width = 10, fig.align = "center"}
+VlnPlot(all10x, features.plot=toupper(c('GREM1', 'HOXB7')), group.by='sample_name', point.size.use=-1, nCol=2, x.lab.rot=T, size.x.use=10)
+```
+
+#Top markers Peri 
+
+```{r}
+print(markers[markers$cluster == 'Peri.white',][1:20,])
+```
+
+
+```{r fig3, fig.height = 30, fig.width = 10, fig.align = "center"}
+VlnPlot(all10x, features.plot=as.vector(markers[markers$cluster == 'Peri.white',][1:20,'gene']), group.by='sample_name', point.size.use=-1, nCol=2, x.lab.rot=T, size.x.use=10)
+```
+
+
+#Top markers Supra
+
+```{r}
+print(markers[markers$cluster == 'Supra.white',][1:20,])
+```
+
+```{r fig4, fig.height = 30, fig.width = 10, fig.align = "center"}
+VlnPlot(all10x, features.plot=as.vector(markers[markers$cluster == 'Supra.white',][1:20,'gene']), group.by='sample_name', point.size.use=-1, nCol=2, x.lab.rot=T, size.x.use=10)
+```
+
+#Top markers Visce
+
+```{r}
+print(markers[markers$cluster == 'Visce.brown',][1:20,])
+```
+
+
+
+```{r fig5, fig.height = 21, fig.width = 10, fig.align = "center"}
+VlnPlot(all10x, features.plot=as.vector(markers[markers$cluster == 'Visce.brown',][,'gene']), group.by='sample_name', point.size.use=-1, nCol=2, x.lab.rot=T, size.x.use=10)
+```
+
+#Top markers Subq
+
+```{r}
+print(markers[markers$cluster == 'Subq.brown',][1:20,])
+```
+
+Most of the markers for Subq seem to be found because Subq_3 stands out (RPS29, BCYRN1, RPL36A, ATP5I, AC009501.4, RPS10). Mostly ribosomal genes.
+
+BCYRN1 = brain cytoplasmic RNA
+
+```{r fig6, fig.height = 30, fig.width = 10, fig.align = "center"}
+VlnPlot(all10x, features.plot=as.vector(markers[markers$cluster == 'Subq.brown',][1:20,'gene']), group.by='sample_name', point.size.use=-1, nCol=2, x.lab.rot=T, size.x.use=10)
+```
+

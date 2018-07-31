@@ -3,6 +3,9 @@ title: "R Notebook"
 output:
   html_document:
     df_print: paged
+    toc: true
+    toc_float: 
+      smooth_scroll: true
 ---
 
 ```{r}
@@ -23,10 +26,11 @@ MEST = 4th marker Peri
 IGFBP5 = top marker Supra
 BARX1 = marker gene Visce
 TNFRSF11B = marker Supra
+SERTAD4-AS1 = marker gene intersection Peri Supra
 
 
-```{r fig1, fig.height = 9, fig.width = 10, fig.align = "center"}
-VlnPlot(all10x, features.plot=toupper(c('TM4SF1', 'LY6K', 'IGFBP5', 'MEST', 'BARX1', 'TNFRSF11B')), group.by='sample_name', point.size.use=-1, nCol=2, x.lab.rot=T, size.x.use=10)
+```{r fig1, fig.height = 12, fig.width = 10, fig.align = "center"}
+VlnPlot(all10x, features.plot=toupper(c('TM4SF1', 'LY6K', 'IGFBP5', 'MEST', 'BARX1', 'TNFRSF11B', 'SERTAD4-AS1')), group.by='sample_name', point.size.use=-1, nCol=2, x.lab.rot=T, size.x.use=10)
 ```
 
 

@@ -4,8 +4,9 @@
 # Creates a Seurat object of the 10x samples. Executes the following steps:
 # - Adds all metadata
 # - Filters, normalizes and scales data (regresses out nUMI and percent.mito)
-# - Calculates clusters (using 15 PC's) of several resolutions and adds them to metadata
-# - Calculates CC scores and adds them to metadata
+# - Calculates clusters (using 15 PC's based on elbow plot) of several resolutions 
+#   and adds them to metadata
+# - Calculates cell cycle scores and adds them to metadata
 # - Performs tSNE (15 PC's (determined before from elbow plot), default perplexity)
 #
 ################################################################################
@@ -83,7 +84,7 @@ seurobj <- AddMetaData(seurobj, metadata=percent.ribo, col.name="percent.ribo")
 seurobj <- AddMetaData(seurobj, metadata=percent.mito, col.name="percent.mito")
 
 print('filter cells')
-seurobj <- FilterCells(seurobj, subset.names=c("nGene", "percent.mito", "nUMI"), low.thresholds = c(200, -Inf, -Inf), high.thresholds = c(9000, 0.08, 120000))
+seurobj <- FilterCells(seurobj, subset.names=c("nGene", "percent.mito", "nUMI"), low.thresholds = c(200, -Inf, -Inf), high.thresholds = c(9000, 0.08, 110000))
 
 print('normalizing data')
 seurobj <- NormalizeData(seurobj, normalization.method = "LogNormalize", scale.factor = 1e4)

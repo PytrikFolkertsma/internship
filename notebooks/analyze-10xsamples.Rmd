@@ -19,6 +19,7 @@ Analysis of the 10x samples.
 ```{r}
 library(Seurat)
 library(ggplot2)
+library(dplyr)
 all10x <- readRDS('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/10x')
 ```
 
@@ -255,5 +256,18 @@ VlnPlot(all10x, group.by='sample_name', features.plot=c('nUMI'), point.size.use 
 
 ```{r}
 VlnPlot(all10x, group.by='sample_name', features.plot=c('percent.mito'), point.size.use = -1, x.lab.rot=T)
+```
+
+#Cluster 12
+
+Sample composition in cluster 12. 
+
+```{r}
+cluster12 <- SubsetData(all10x, cells.use=rownames(all10x@meta.data)[which(all10x@meta.data$res.0.5 %in% 12)])
+rotate_x <- function(data, column_to_plot, labels_vec, rot_angle) {
+     plt <- barplot(data[[column_to_plot]], col='steelblue', xaxt="n")
+     text(plt, par("usr")[3], labels = labels_vec, srt = rot_angle, adj = c(1.1,1.1), xpd = TRUE, cex=0.6)
+}
+rotate_x((cluster12@meta.data %>% count(sample_name))[,2], 'n', as.vector(unlist((cluster12@meta.data %>% count(sample_name))[,1])), 45)
 ```
 

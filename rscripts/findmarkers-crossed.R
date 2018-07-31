@@ -25,6 +25,9 @@ library(dplyr)
 print('reading data')
 data <- readRDS(opt$file)
 
+data <- SubsetData(data, cells.use=rownames(data@meta.data)[!data@meta.data$sample_name %in% 'Supra_4'])
+data <- SubsetData(data, cells.use=rownames(data@meta.data)[!data@meta.data$sample_name %in% 'Subq_4'])
+
 print('setting columns')
 type <- unlist(lapply(data@meta.data$sample_name2, function(x){
   if (x == 'Supra' || x == 'Peri'){
@@ -73,7 +76,7 @@ for (x in steps){
   print(x)
   data <- SetAllIdent(data, id=x[1])
   markers <- c(1,2,3)
-  markers <- FindMarkers(data, ident.1=x[2], ident.2=x[3], min.pct = 0.25, only.pos = TRUE, thresh.use = 0.25, test.use = 'negbinom')
+  markers <- FindMarkers(data, ident.1=x[2], ident.2=x[3], min.pct = 0.25, only.pos = TRUE, thresh.use = 0.25, test.use = opt$test)
   all.markers[[paste(x[2], x[3], sep='.')]] = markers
 }
 
@@ -84,7 +87,7 @@ names(all.markers)
 df.cluster_markers <- bind_rows(all.markers, .id='cluster')
 
 print('saving dataframe marker genes')
-save(df.cluster_markers, file=paste(opt$outdir, 'markergenes-crossed', '.', opt$test, sep=''))
+save(df.cluster_markers, file=paste(opt$outdir, 'markergenes-crossed', '.', opt$test, '.supra4-subq4-removed', sep=''))
 
 
 
