@@ -75,17 +75,17 @@ plot_cell_trajectory(data1, color_by = "res.0.5") +
     facet_wrap(~res.0.5, nrow = 3)
 ```
 
-```{r fig1, fig.height = 7, fig.width = 10, fig.align = "center"}
+```{r fig2, fig.height = 7, fig.width = 10, fig.align = "center"}
 plot_cell_trajectory(data1.pm.umi, color_by = "res.0.5") +
     facet_wrap(~res.0.5, nrow = 3)
 ```
 
-```{r fig1, fig.height = 7, fig.width = 10, fig.align = "center"}
+```{r fig3, fig.height = 7, fig.width = 10, fig.align = "center"}
 plot_cell_trajectory(data1.cc, color_by = "res.0.5") +
     facet_wrap(~res.0.5, nrow = 3)
 ```
 
-```{r fig1, fig.height = 7, fig.width = 10, fig.align = "center"}
+```{r fig4, fig.height = 7, fig.width = 10, fig.align = "center"}
 plot_cell_trajectory(data1.pm.umi.cc, color_by = "res.0.5") +
     facet_wrap(~res.0.5, nrow = 3)
 ```
@@ -93,7 +93,7 @@ plot_cell_trajectory(data1.pm.umi.cc, color_by = "res.0.5") +
 
 
 
-```{r fig1, fig.height = 7, fig.width = 10, fig.align = "center"}
+```{r fig5, fig.height = 7, fig.width = 10, fig.align = "center"}
 plot_cell_trajectory(data1, color_by = "samplename", cell_size=0.2, show_branch_points=F) +
     facet_wrap(~samplename, nrow = 3)
 ```
