@@ -36,6 +36,18 @@ colnames(pData(data1)) <- replace(colnames(pData(data1)), colnames(pData(data1))
 colnames(pData(data1.cc)) <- replace(colnames(pData(data1.cc)), colnames(pData(data1.cc)) =='sample_name', 'samplename')
 colnames(pData(data1.pm.umi)) <- replace(colnames(pData(data1.pm.umi)), colnames(pData(data1.pm.umi)) =='sample_name', 'samplename')
 colnames(pData(data1.pm.umi.cc)) <- replace(colnames(pData(data1.pm.umi.cc)), colnames(pData(data1.pm.umi.cc)) =='sample_name', 'samplename')
+
+
+data5 <- readRDS('../../data/monocle/10x-monocle-downsampled-66')
+data5.pm.umi <- readRDS('../../data/monocle/10x-monocle-downsampled-66-pm-umi')
+data5.cc <- readRDS('../../data/monocle/10x-monocle-downsampled-66-cc')
+data5.pm.umi.cc <- readRDS('../../data/monocle/10x-monocle-downsampled-66-pm-umi-cc')
+
+colnames(pData(data5)) <- replace(colnames(pData(data5)), colnames(pData(data5)) =='sample_name', 'samplename')
+colnames(pData(data5.pm.umi)) <- replace(colnames(pData(data5.pm.umi)), colnames(pData(data5.pm.umi)) =='sample_name', 'samplename')
+colnames(pData(data5.cc)) <- replace(colnames(pData(data5.cc)), colnames(pData(data5.cc)) =='sample_name', 'samplename')
+colnames(pData(data5.pm.umi.cc)) <- replace(colnames(pData(data5.pm.umi.cc)), colnames(pData(data5.pm.umi.cc)) =='sample_name', 'samplename')
+
 ```
 
 Just to check if the trajectories look the same when using different downsampled datasets. 
@@ -99,4 +111,18 @@ plot_cell_trajectory(data1, color_by = "samplename", cell_size=0.2, show_branch_
 ```
 
 
+```{r fig6, fig.height = 7, fig.width = 10, fig.align = "center"}
+plot_cell_trajectory(data5, color_by = "res.0.5") +
+    facet_wrap(~res.0.5, nrow = 3)
+```
+
+```{r fig7, fig.height = 7, fig.width = 10, fig.align = "center"}
+plot_cell_trajectory(data5.cc, color_by = "res.0.5") +
+    facet_wrap(~res.0.5, nrow = 3)
+```
+
+```{r fig8, fig.height = 7, fig.width = 10, fig.align = "center"}
+plot_cell_trajectory(data5.cc, color_by = "samplename", cell_size=0.2, show_branch_points=F) +
+    facet_wrap(~samplename, nrow = 3)
+```
 

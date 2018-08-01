@@ -19,14 +19,9 @@ Interesting to see that none of the marker genes have a higher expression in the
 
 Both a wilcoxon test and negative binomial test were used to find marker genes, but they had almost similar results. 
 
-TM4SF1 and LY6K markers for Supra and Peri. 
+TM4SF1, LY6K and SERTAD4-AS1 were found for both Supra and Peri. 
 The intersection of Visceral en Subcutaneous yielded no interesting genes.
-TM4SF1 = top marker Peri
-MEST = 4th marker Peri
-IGFBP5 = top marker Supra
-BARX1 = marker gene Visce
-TNFRSF11B = marker Supra
-SERTAD4-AS1 = marker gene intersection Peri Supra
+TM4SF1 = top marker Peri. MEST = 4th marker Peri. IGFBP5 = top marker Supra. BARX1 = marker gene Visce. TNFRSF11B = marker Supra. 
 
 
 ```{r fig1, fig.height = 12, fig.width = 10, fig.align = "center"}

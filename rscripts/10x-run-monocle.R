@@ -1,7 +1,7 @@
 .libPaths('/home/cbmr/pytrik/libraries/')
-setwd('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/rscripts/')
+setwd('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/scripts-10x-analysis/rscripts/')
 
-r.seed <- 36
+r.seed <- 66
 
 library(optparse)
 
@@ -67,7 +67,7 @@ run_monocle_workflow <- function(data, output_name){
 
   print('Selecting genes for ordering with high dispersion...')
   disp_table <- dispersionTable(cds)
-  ordering_genes <- subset(disp_table, mean_expression >= 0.3 & dispersion_empirical >= 1 * dispersion_fit)$gene_id
+  ordering_genes <- subset(disp_table, mean_expression >= 0.5 & dispersion_empirical >= 1 * dispersion_fit)$gene_id
   print(paste('Nr of genes selected:', length(ordering_genes)))
 
   print('Seting ordering filter...')
