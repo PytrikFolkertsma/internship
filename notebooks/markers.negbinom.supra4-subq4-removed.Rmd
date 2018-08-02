@@ -137,7 +137,7 @@ print(avg_expr)
 #Top markers Visce
 
 ```{r}
-print(markers[markers$cluster == 'Visce.brown',][1:20,])
+print(markers[markers$cluster == 'Visce.brown',])
 ```
 
 
