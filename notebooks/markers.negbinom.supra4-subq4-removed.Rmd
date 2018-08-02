@@ -8,7 +8,7 @@ output:
       smooth_scroll: true
 ---
 
-
+Results of the crossed DE tests (Peri vs white, Supra vs white, Subq vs brown, Visce vs brown). Supra4 and Subq4 were removed from the DE analyses. 
 
 ```{r}
 library(VennDiagram)
@@ -66,6 +66,14 @@ markers.peri.supra <- unique(markers[which(markers$gene %in% peri.supra),'gene']
 VlnPlot(all10x, features.plot=markers.peri.supra, group.by='sample_name', point.size.use=-1, nCol=2, x.lab.rot=T, size.x.use=10)
 ```
 
+Average expressions
+
+```{r}
+avg_expr <- AverageExpression(SetAllIdent(all10x, 'sample_name2'), genes.use=markers.peri.supra)
+print(avg_expr)
+```
+
+
 #Markers intersection Subq and Visce
 
 ```{r}
@@ -81,6 +89,14 @@ print(markers[which(markers$gene %in% visce.subq),])
 VlnPlot(all10x, features.plot=toupper(c('GREM1', 'HOXB7')), group.by='sample_name', point.size.use=-1, nCol=2, x.lab.rot=T, size.x.use=10)
 ```
 
+Average expressions
+
+```{r}
+avg_expr <- AverageExpression(SetAllIdent(all10x, 'sample_name2'), genes.use=c('GREM1', 'HOXB7'))
+print(avg_expr)
+```
+
+
 #Top markers Peri 
 
 ```{r}
@@ -90,6 +106,13 @@ print(markers[markers$cluster == 'Peri.white',][1:20,])
 
 ```{r fig3, fig.height = 30, fig.width = 10, fig.align = "center"}
 VlnPlot(all10x, features.plot=as.vector(markers[markers$cluster == 'Peri.white',][1:20,'gene']), group.by='sample_name', point.size.use=-1, nCol=2, x.lab.rot=T, size.x.use=10)
+```
+
+Average expressions
+
+```{r}
+avg_expr <- AverageExpression(SetAllIdent(all10x, 'sample_name2'), genes.use=as.vector(markers[markers$cluster == 'Peri.white',][1:20,'gene']))
+print(avg_expr)
 ```
 
 
@@ -103,6 +126,14 @@ print(markers[markers$cluster == 'Supra.white',][1:20,])
 VlnPlot(all10x, features.plot=as.vector(markers[markers$cluster == 'Supra.white',][1:20,'gene']), group.by='sample_name', point.size.use=-1, nCol=2, x.lab.rot=T, size.x.use=10)
 ```
 
+Average expressions 
+
+```{r}
+avg_expr <- AverageExpression(SetAllIdent(all10x, 'sample_name2'), genes.use=as.vector(markers[markers$cluster == 'Supra.white',][1:20,'gene']))
+print(avg_expr)
+```
+
+
 #Top markers Visce
 
 ```{r}
@@ -110,10 +141,17 @@ print(markers[markers$cluster == 'Visce.brown',][1:20,])
 ```
 
 
-
 ```{r fig5, fig.height = 21, fig.width = 10, fig.align = "center"}
 VlnPlot(all10x, features.plot=as.vector(markers[markers$cluster == 'Visce.brown',][,'gene']), group.by='sample_name', point.size.use=-1, nCol=2, x.lab.rot=T, size.x.use=10)
 ```
+
+Average expressions
+
+```{r}
+avg_expr <- AverageExpression(SetAllIdent(all10x, 'sample_name2'), genes.use=as.vector(markers[markers$cluster == 'Visce.brown',][,'gene']))
+print(avg_expr)
+```
+
 
 #Top markers Subq
 
@@ -127,5 +165,12 @@ BCYRN1 = brain cytoplasmic RNA
 
 ```{r fig6, fig.height = 30, fig.width = 10, fig.align = "center"}
 VlnPlot(all10x, features.plot=as.vector(markers[markers$cluster == 'Subq.brown',][1:20,'gene']), group.by='sample_name', point.size.use=-1, nCol=2, x.lab.rot=T, size.x.use=10)
+```
+
+Average expressions
+
+```{r}
+avg_expr <- AverageExpression(SetAllIdent(all10x, 'sample_name2'), genes.use=as.vector(markers[markers$cluster == 'Subq.brown',][1:20,'gene']))
+print(avg_expr)
 ```
 
