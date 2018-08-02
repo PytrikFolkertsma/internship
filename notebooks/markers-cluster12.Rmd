@@ -1,0 +1,37 @@
+---
+title: "R Notebook"
+output:
+  html_document:
+    df_print: paged
+---
+
+
+```{r}
+library(Seurat)
+all10x <- readRDS('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/10x')
+markers <- read.table('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/markergenes/markergenes-cluster12-negbinom.txt', header=T)
+```
+
+
+#Violin plots
+
+```{r fig1, fig.height = 150, fig.width = 10, fig.align = "center"}
+VlnPlot(all10x, features.plot=as.vector(markers[,'gene'][1:100]), group.by='res.0.5', point.size.use=-1, nCol=2, x.lab.rot=T, size.x.use=10)
+```
+
+#Average expressions
+
+```{r}
+mixcluster_vs_rest <- unlist(lapply(all10x@meta.data$res.0.5, function(x){
+  if (x == '12'){
+    return('mixcluster')
+  } else {
+    return('rest')
+  }
+}))
+all10x@meta.data['mixcluster'] <- mixcluster_vs_rest
+avg_expr <- AverageExpression(SetAllIdent(all10x, 'mixcluster'), genes.use=as.vector(markers[,'gene'][1:100]))
+print(avg_expr)
+```
+
+
