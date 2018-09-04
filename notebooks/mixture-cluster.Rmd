@@ -1,0 +1,47 @@
+---
+title: "R Notebook"
+output:
+  html_document:
+    df_print: paged
+---
+
+
+```{r}
+library(Seurat)
+all10x <- readRDS('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/10x')
+```
+
+Common markers for preadipocytes in mice are PDGFRA, LY6A (ATXN1 in humans), CD34, PREF1 (=DLK1 gene in humans) and CD29 (=ITGB1 gene in humans). PPARG = mature adipocyte marker.
+
+```{r fig1, fig.height=9, fig.width=10, fig.align="center"}
+VlnPlot(all10x, features.plot=c('PDGFRA', 'ATXN1', 'CD34', 'DLK1', 'ITGB1'), point.size.use=-1, nCol=2, x.lab.rot=T, size.x.use=10, group.by='sample_name')
+```
+
+
+Grouped by cluster. 
+
+```{r fig2, fig.height=9, fig.width=10, fig.align="center"}
+VlnPlot(all10x, features.plot=c('PDGFRA', 'ATXN1', 'CD34', 'DLK1', 'ITGB1'), group.by='res.0.5', point.size.use=-1, nCol=2, x.lab.rot=T, size.x.use=10)
+```
+
+Negative markers cluster 12 with the highest negative log fold change.
+Interesting to see HIST1H4C is expressed in two groups in the other clusters.
+Furthermore, there are a lot of COL genes in the list downregulated (13). COL genes encode for collagen proteins. 
+
+```{r fig3, fig.height=12, fig.width=10, fig.align="center"}
+VlnPlot(all10x, features.plot=c('MALAT1', 'COL1A1', 'NEAT1', 'FN1', 'COL1A2', 'HIST1H4C', 'CYR61', 'COL3A1'), group.by='res.0.5', point.size.use=-1, nCol=2, x.lab.rot=T, size.x.use=10)
+```
+
+Complete list of markers for cluster 12. 
+
+```{r}
+markers <- read.table('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/markergenes/markers_cluster12-negbinom.txt', sep='\t', header=T)
+print(markers)
+```
+
+COL genes 
+
+```{r}
+print(markers[unlist(lapply(markers$gene, function(x){return( startsWith(as.character(x), 'COL') )})),])
+```
+

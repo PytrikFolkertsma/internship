@@ -12,7 +12,7 @@ Setup:
 
 ```{r}
 .libPaths('/home/cbmr/pytrik/libraries/')
-setwd('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/notebooks/')
+setwd('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/scripts-10x-analysis/notebooks/')
 library(monocle)
 library(Seurat)
 ```
@@ -20,15 +20,16 @@ library(Seurat)
 Analyzing trajectories per depot (cc effect, nUmi and percent.mito not regressed out here).
 
 ```{r}
-peri <- readRDS('../data/monocle/10x_monocle_Peri')
-visce <- readRDS('../data/monocle/10x_monocle_Visce')
-subq <- readRDS('../data/monocle/10x_monocle_Subq')
-supra <- readRDS('../data/monocle/10x_monocle_Supra')
+peri <- readRDS('../../data/monocle/10x-monocle-Peri-cc')
+visce <- readRDS('../../data/monocle/10x-monocle-Visce-cc')
+subq <- readRDS('../../data/monocle/10x-monocle-Subq-cc')
+supra <- readRDS('../../data/monocle/10x-monocle-Supra-cc')
 
-pData(peri)['samplename'] <- pData(peri)['sample_name']
-pData(visce)['samplename'] <- pData(visce)['sample_name']
-pData(subq)['samplename'] <- pData(subq)['sample_name']
-pData(supra)['samplename'] <- pData(supra)['sample_name']
+#TODO write a function to replace the colnames, really annoying this
+colnames(pData(peri)) <- replace(colnames(pData(peri)), colnames(pData(peri)) =='sample_name', 'samplename')
+colnames(pData(visce)) <- replace(colnames(pData(visce)), colnames(pData(visce)) =='sample_name', 'samplename')
+colnames(pData(subq)) <- replace(colnames(pData(subq)), colnames(pData(subq)) =='sample_name', 'samplename')
+colnames(pData(supra)) <- replace(colnames(pData(supra)), colnames(pData(supra)) =='sample_name', 'samplename')
 
 ```
 

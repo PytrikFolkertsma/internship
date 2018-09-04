@@ -1,6 +1,8 @@
 ---
 title: "R Notebook"
-output: html_notebook
+output:
+  html_document:
+    df_print: paged
 ---
 
 ```{r}
@@ -13,7 +15,7 @@ library(SingleCellExperiment)
 Data loading and inspection of the metadata.
 
 ```{r}
-load('data/facs_Fat_seurat_tiss.Robj')
+load('../../data/downloads/facs_Fat_seurat_tiss.Robj')
 head(tiss@meta.data)
 ```
 
@@ -38,11 +40,103 @@ TSNEPlot(tiss, group.by='annotation', pt.size=0.5)
 TSNEPlot(tiss, group.by='subtissue', pt.size=0.5)
 ```
 
-I wonder why the subtissues are mixed here. In my analysis of the 14 10x samples tSNE clearly groups the subtissues apart, and they seem to use the same workflow here (https://github.com/czbiohub/tabula-muris/blob/master/computational_methods.md).
-//Probably because we have cultured cells?
+
+```{r}
+sce_maca <- as.SingleCellExperiment(tiss)
+all10x <- readRDS('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/10x')
+sce_10x <- as.SingleCellExperiment(all10x)
+
+#convert maca gene names to uppercase to match 10x gene names
+rowData(sce_maca)['feature_symbol'] <- unlist(lapply(rowData(sce_maca)$gene, function(x){return(toupper(x))}))
+rowData(sce_10x)['feature_symbol'] <- rowData(sce_10x)$gene
+
+counts(sce_maca) <- as.matrix(counts(sce_maca))
+logcounts(sce_maca) <- as.matrix(logcounts(sce_maca))
+sce_maca <- selectFeatures(sce_maca, suppress_plot = FALSE)
+
+```
+
+```{r}
+counts(sce_10x) <- as.matrix(counts(sce_10x))
+logcounts(sce_10x) <- as.matrix(logcounts(sce_10x))
+sce_10x <- selectFeatures(sce_10x, suppress_plot = FALSE)
+```
 
 
 ```{r}
-sce <- as.SingleCellExperiment(tiss)
+sce_maca <- indexCluster(sce_maca, cluster_col = 'annotation')
+
+library(pheatmap)
+pheatmap(metadata(sce_maca)$scmap_cluster_index, show_rownames = FALSE)
+```
+
+```{r}
+scmapCluster_results <- scmapCluster(
+  projection = sce_10x, 
+  index_list = list(
+    sce_maca = metadata(sce_maca)$scmap_cluster_index
+  ),
+  threshold=0.5  #default=0.7 but doesn't give a lot of results
+)
+
+table(scmapCluster_results$scmap_cluster_labs)
+```
+
+Mapping to clusters
+
+```{r}
+plot(
+  getSankey(
+    colData(sce_10x)$res.0.5, 
+    scmapCluster_results$scmap_cluster_labs[,"sce_maca"],
+    plot_height = 400
+  )
+)
+
+#link: http://yggdrasil:7000/custom/googleVis/SankeyID28378886a62.html
+
+```
+
+Annotations for cluster 12
+
+```{r}
+table(scmapCluster_results$scmap_cluster_labs[which(colData(sce_10x)$res.0.5 %in% 12),'sce_maca'])
+```
+
+
+Mapping to subtissues
+
+```{r}
+plot(
+  getSankey(
+    colData(sce_10x)$sample_name, 
+    scmapCluster_results$scmap_cluster_labs[,"sce_maca"],
+    plot_height = 400
+  )
+)
+
+#link: http://yggdrasil:7000/custom/googleVis/SankeyID28374d62c83.html
+```
+
+
+```{r}
+predicted_labels <- as.data.frame(
+    row.names=rownames(sce_10x@colData), 
+    x=as.vector(scmapCluster_results$scmap_cluster_labs))
+names(predicted_labels) <- 'predicted_labels'
+all10x <- AddMetaData(all10x, metadata=predicted_labels, col.name='predicted_labels')
+```
+
+```{r}
+TSNEPlot(all10x, group.by='sample_name', pt.size=0.1, do.label=T)
+```
+
+```{r}
+TSNEPlot(all10x, group.by='predicted_labels', pt.size=0.1, do.label=T)
+```
+
+
+```{r}
+#saveRDS(all10x, '/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/10x')
 ```
 

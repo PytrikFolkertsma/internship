@@ -3,7 +3,7 @@
 ### Discarded cells are saved in data/alignment_discarded-cells
 
 .libPaths('/home/cbmr/pytrik/libraries/')
-setwd('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/rscripts/')
+setwd('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/scripts-10x-analysis/rscripts/')
 
 library(optparse)
 
@@ -25,7 +25,7 @@ library(Rcpp)
 library(magrittr)
 library(Seurat)
 
-n.ccs <- 30
+n.ccs <- 20
 #ccs.tsne <- c(10, 20, 30) #nr of cc's to use for tsne
 
 ################################################################################

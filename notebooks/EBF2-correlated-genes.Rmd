@@ -1,0 +1,140 @@
+---
+title: "R Notebook"
+output:
+  html_document:
+    df_print: paged
+    toc: true
+    toc_float: 
+      smooth_scroll: true
+---
+
+
+```{r}
+library(Seurat)
+all10x <- readRDS('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/10x')
+```
+
+
+```{r}
+matrix <- as.matrix(all10x@data)
+gene <- as.numeric(matrix['EBF2', ])
+correlations <- apply(matrix, 1, function(x){cor(gene, x)})
+```
+
+```{r}
+print(as.data.frame(sort(correlations, decreasing=T)))
+```
+
+
+```{r}
+#maybe make geneplot per depot as we have a lot of cells
+all10x <- SetAllIdent(all10x, id='sample_name2')
+
+peri <- SubsetData(all10x, ident.use = 'Peri')
+supra <- SubsetData(all10x, ident.use = 'Supra')
+subq <- SubsetData(all10x, ident.use = 'Subq')
+visce <- SubsetData(all10x, ident.use = 'Visce')
+```
+
+#PPAP2B
+
+Peri
+
+```{r}
+GenePlot(SetAllIdent(peri, id='sample_name'),"EBF2","PPAP2B", do.hover=T)
+```
+
+Supra
+
+```{r}
+GenePlot(SetAllIdent(supra, id='sample_name'),"EBF2","PPAP2B", do.hover=T)
+```
+
+Subq
+
+```{r}
+GenePlot(SetAllIdent(subq, id='sample_name'),"EBF2","PPAP2B", do.hover=T)
+```
+
+Visce
+
+```{r}
+GenePlot(SetAllIdent(visce, id='sample_name'),"EBF2","PPAP2B", do.hover=T)
+```
+
+#AKAP12
+
+Peri
+
+```{r}
+GenePlot(SetAllIdent(peri, id='sample_name'),"EBF2","AKAP12", do.hover=T)
+```
+
+Supra
+
+```{r}
+GenePlot(SetAllIdent(supra, id='sample_name'),"EBF2","AKAP12", do.hover=T)
+```
+
+Subq
+
+```{r}
+GenePlot(SetAllIdent(subq, id='sample_name'),"EBF2","AKAP12", do.hover=T)
+```
+
+Visce
+
+```{r}
+GenePlot(SetAllIdent(visce, id='sample_name'),"EBF2","AKAP12", do.hover=T)
+```
+
+#PDGFRA
+
+Supra
+
+```{r}
+GenePlot(SetAllIdent(supra, id='sample_name'),"EBF2","PDGFRA", do.hover=T)
+```
+
+Peri 
+
+```{r}
+GenePlot(SetAllIdent(peri, id='sample_name'),"EBF2","PDGFRA", do.hover=T)
+```
+
+Subq
+
+```{r}
+GenePlot(SetAllIdent(subq, id='sample_name'),"EBF2","PDGFRA", do.hover=T)
+```
+
+Visce
+
+```{r}
+GenePlot(SetAllIdent(visce, id='sample_name'),"EBF2","PDGFRA", do.hover=T)
+```
+
+#FBN1
+
+```{r}
+GenePlot(SetAllIdent(peri, id='sample_name'),"EBF2","FBN1", do.hover=T)
+```
+
+Supra
+
+```{r}
+GenePlot(SetAllIdent(subq, id='sample_name'),"EBF2","FBN1", do.hover=T)
+```
+
+Subq
+
+```{r}
+GenePlot(SetAllIdent(subq, id='sample_name'),"EBF2","FBN1", do.hover=T)
+```
+
+Visce
+
+```{r}
+GenePlot(SetAllIdent(visce, id='sample_name'),"EBF2","FBN1", do.hover=T)
+```
+

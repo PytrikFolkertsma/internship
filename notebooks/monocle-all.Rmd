@@ -12,41 +12,21 @@ library(monocle)
 library(Seurat)
 ```
 
+```{r}
+filename <- '../../data/monocle/10x-monocle-downsampled-66'
+```
+
 
 ```{r}
-data1 <- readRDS('../../data/monocle/10x-monocle-downsampled-27')
-data2 <- readRDS('../../data/monocle/10x-monocle-downsampled-36')
-data3 <- readRDS('../../data/monocle/10x-monocle-downsampled-42')
-data4 <- readRDS('../../data/monocle/10x-monocle-downsampled-99')
-data1.cc <- readRDS('../../data/monocle/10x-monocle-downsampled-27-cc')
-data2.cc <- readRDS('../../data/monocle/10x-monocle-downsampled-36-cc')
-data3.cc<- readRDS('../../data/monocle/10x-monocle-downsampled-42-cc')
-data4.cc <- readRDS('../../data/monocle/10x-monocle-downsampled-99-cc')
-data1.pm.umi <- readRDS('../../data/monocle/10x-monocle-downsampled-27-pm-umi')
-data2.pm.umi <- readRDS('../../data/monocle/10x-monocle-downsampled-36-pm-umi')
-data3.pm.umi <- readRDS('../../data/monocle/10x-monocle-downsampled-42-pm-umi')
-data4.pm.umi <- readRDS('../../data/monocle/10x-monocle-downsampled-99-pm-umi')
-data1.pm.umi.cc <- readRDS('../../data/monocle/10x-monocle-downsampled-27-pm-umi-cc')
-data2.pm.umi.cc <- readRDS('../../data/monocle/10x-monocle-downsampled-36-pm-umi-cc')
-data3.pm.umi.cc <- readRDS('../../data/monocle/10x-monocle-downsampled-42-pm-umi-cc')
-data4.pm.umi.cc <- readRDS('../../data/monocle/10x-monocle-downsampled-99-pm-umi-cc')
+data <- readRDS(filename)
+data.pm.umi <- readRDS(paste(filename, '-pm-umi', sep=''))
+data.cc <- readRDS(paste(filename, '-cc', sep=''))
+data.pm.umi.cc <- readRDS(paste(filename, '-pm-umi-cc', sep=''))
 
-#set colnames
-colnames(pData(data1)) <- replace(colnames(pData(data1)), colnames(pData(data1)) =='sample_name', 'samplename')
-colnames(pData(data1.cc)) <- replace(colnames(pData(data1.cc)), colnames(pData(data1.cc)) =='sample_name', 'samplename')
-colnames(pData(data1.pm.umi)) <- replace(colnames(pData(data1.pm.umi)), colnames(pData(data1.pm.umi)) =='sample_name', 'samplename')
-colnames(pData(data1.pm.umi.cc)) <- replace(colnames(pData(data1.pm.umi.cc)), colnames(pData(data1.pm.umi.cc)) =='sample_name', 'samplename')
-
-
-data5 <- readRDS('../../data/monocle/10x-monocle-downsampled-66')
-data5.pm.umi <- readRDS('../../data/monocle/10x-monocle-downsampled-66-pm-umi')
-data5.cc <- readRDS('../../data/monocle/10x-monocle-downsampled-66-cc')
-data5.pm.umi.cc <- readRDS('../../data/monocle/10x-monocle-downsampled-66-pm-umi-cc')
-
-colnames(pData(data5)) <- replace(colnames(pData(data5)), colnames(pData(data5)) =='sample_name', 'samplename')
-colnames(pData(data5.pm.umi)) <- replace(colnames(pData(data5.pm.umi)), colnames(pData(data5.pm.umi)) =='sample_name', 'samplename')
-colnames(pData(data5.cc)) <- replace(colnames(pData(data5.cc)), colnames(pData(data5.cc)) =='sample_name', 'samplename')
-colnames(pData(data5.pm.umi.cc)) <- replace(colnames(pData(data5.pm.umi.cc)), colnames(pData(data5.pm.umi.cc)) =='sample_name', 'samplename')
+colnames(pData(data)) <- replace(colnames(pData(data)), colnames(pData(data)) =='sample_name', 'samplename')
+colnames(pData(data.pm.umi)) <- replace(colnames(pData(data.pm.umi)), colnames(pData(data.pm.umi)) =='sample_name', 'samplename')
+colnames(pData(data.cc)) <- replace(colnames(pData(data.cc)), colnames(pData(data.cc)) =='sample_name', 'samplename')
+colnames(pData(data.pm.umi.cc)) <- replace(colnames(pData(data.pm.umi.cc)), colnames(pData(data.pm.umi.cc)) =='sample_name', 'samplename')
 
 ```
 

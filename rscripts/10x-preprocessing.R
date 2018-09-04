@@ -99,7 +99,7 @@ print('CLUSTERING')
 print('finding variable genes')
 seurobj <- FindVariableGenes(seurobj, do.plot=F)
 print('running pca')
-seurobj <- RunPCA(seurobj, pcs.compute=50, do.print=F)
+seurobj <- RunPCA(seurobj, pcs.compute=20, do.print=F)
 
 print('running clustering')
 for (res in resolutions){

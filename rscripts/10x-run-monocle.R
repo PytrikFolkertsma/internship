@@ -1,7 +1,7 @@
 .libPaths('/home/cbmr/pytrik/libraries/')
 setwd('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/scripts-10x-analysis/rscripts/')
 
-r.seed <- 66
+r.seed <- 11
 
 library(optparse)
 
@@ -9,7 +9,8 @@ option_list <- list(
   make_option(c('-f', '--file'), type='character', help='Path to the dataset to run Monocle on.'),
   make_option(c('-o', '--outdir'), type='character', help='Output directory.'),
   make_option(c('-d', '--depots'), action='store_true', default=F, help='OPTIONAL. If flag -d is given, Monocle is run on individual depots.'),
-  make_option(c('-r', '--regressout'), type='character', help="OPTIONAL. Choose from 'pm-umi', 'pm-umi-cc' or 'cc'.")
+  make_option(c('-r', '--regressout'), type='character', help="OPTIONAL. Choose from 'pm-umi', 'pm-umi-cc' or 'cc'.", default='none'),
+  make_option(c('-s', '--samplingdown'), type='character', help='OPTIONAL. Integer specifying the number of cells per sample to downsample on.')
   #add option for downsampling
 )
 
@@ -21,7 +22,7 @@ if (is.null(opt$file) || is.null(opt$outdir)){
   quit()  
 }
 
-if (!is.null(opt$regressout)){
+if (!(opt$regressout == 'none')){
   if (!(opt$regressout == 'pm-umi' || opt$regressout == 'cc' || opt$regressout == 'pm-umi-cc')){
     print("For regressout (-r) choose from 'pm-umi', 'pm-umi-cc' or 'cc'.")
     print_help(optionparser)
@@ -36,7 +37,10 @@ library(Seurat)
 
 print('LOADING SEURAT OBJECT')
 seurat_object <- readRDS(opt$file)
-seurat_object <- SubsetData(SetAllIdent(seurat_object, id='sample_name'), max.cells.per.ident=1000, random.seed=r.seed)
+
+if(!is.null(opt$samplingdown)){
+  seurat_object <- SubsetData(SetAllIdent(seurat_object, id='sample_name'), max.cells.per.ident=1000, random.seed=r.seed)
+}
 
 setwd(opt$outdir)
 output_prefix <- '10x'
@@ -69,6 +73,12 @@ run_monocle_workflow <- function(data, output_name){
   disp_table <- dispersionTable(cds)
   ordering_genes <- subset(disp_table, mean_expression >= 0.5 & dispersion_empirical >= 1 * dispersion_fit)$gene_id
   print(paste('Nr of genes selected:', length(ordering_genes)))
+  
+  if (opt$regressout == 'cc' || opt$regressout == 'pm-umi-cc'){
+    #remove cell cycle genes from the ordering_genes list if cell cycle effects will be regressed out. 
+    cc.genes <- readLines('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/downloads/regev_lab_cell_cycle_genes.txt')
+    ordering_genes <- ordering_genes[! ordering_genes %in% cc.genes]
+  }
 
   print('Seting ordering filter...')
   cds <- setOrderingFilter(cds, ordering_genes)
@@ -77,7 +87,7 @@ run_monocle_workflow <- function(data, output_name){
 
   print('Reducing data to two dimensions with DDRTree...')
 
-  if (is.null(opt$regressout)){
+  if (opt$regressout == 'none'){
     cds <- reduceDimension(cds, max_components = 2, reduction.method = 'DDRTree')
   } else if (opt$regressout == 'pm-umi'){
     cds <- reduceDimension(cds, max_components = 2, reduction.method = 'DDRTree', residualModelFormulaStr='~percent.mito + nUMI')
@@ -91,8 +101,10 @@ run_monocle_workflow <- function(data, output_name){
   
   print('Ordering cells along trajectory...')
   cds <- orderCells(cds)
-
-  if (is.null(opt$regressout)){
+  
+  ###SAVE CDS
+  
+  if (opt$regressout == 'none'){
     print(paste("Saving CDS as ", output_name, " in ", opt$outdir, "'.", sep=''))
     saveRDS(cds, output_name)
   } else {
@@ -107,7 +119,11 @@ if (opt$depots){
   for (subtissue in unique(subtissues)){
     print(subtissue)
     subset <- SubsetData(seurat_object, cells.use=seurat_object@cell.names[which(subtissues %in% subtissue)])
-    output_name <- paste(output_prefix, 'monocle', subtissue, sep='-')
+    if(is.null(opt$samplingdown)){
+      output_name <- paste(output_prefix, 'monocle', subtissue, sep='-')
+    } else {
+      output_name <- paste(output_prefix, 'monocle', 'downsampled', r.seed, subtissue, sep='-')
+    }
     run_monocle_workflow(subset, output_name)
   }
 } else {
