@@ -22,7 +22,7 @@ correlations <- apply(matrix, 1, function(x){cor(gene, x)})
 ```
 
 ```{r}
-print(as.data.frame(sort(correlations, decreasing=T)))
+print(as.data.frame(sort(correlations, decreasing=T)[1:100]))
 ```
 
 
@@ -41,25 +41,25 @@ visce <- SubsetData(all10x, ident.use = 'Visce')
 Peri
 
 ```{r}
-GenePlot(SetAllIdent(peri, id='sample_name'),"EBF2","PPAP2B", do.hover=T)
+GenePlot(SetAllIdent(peri, id='sample_name'),"EBF2","PPAP2B")
 ```
 
 Supra
 
 ```{r}
-GenePlot(SetAllIdent(supra, id='sample_name'),"EBF2","PPAP2B", do.hover=T)
+GenePlot(SetAllIdent(supra, id='sample_name'),"EBF2","PPAP2B")
 ```
 
 Subq
 
 ```{r}
-GenePlot(SetAllIdent(subq, id='sample_name'),"EBF2","PPAP2B", do.hover=T)
+GenePlot(SetAllIdent(subq, id='sample_name'),"EBF2","PPAP2B")
 ```
 
 Visce
 
 ```{r}
-GenePlot(SetAllIdent(visce, id='sample_name'),"EBF2","PPAP2B", do.hover=T)
+GenePlot(SetAllIdent(visce, id='sample_name'),"EBF2","PPAP2B")
 ```
 
 #AKAP12
@@ -67,25 +67,25 @@ GenePlot(SetAllIdent(visce, id='sample_name'),"EBF2","PPAP2B", do.hover=T)
 Peri
 
 ```{r}
-GenePlot(SetAllIdent(peri, id='sample_name'),"EBF2","AKAP12", do.hover=T)
+GenePlot(SetAllIdent(peri, id='sample_name'),"EBF2","AKAP12")
 ```
 
 Supra
 
 ```{r}
-GenePlot(SetAllIdent(supra, id='sample_name'),"EBF2","AKAP12", do.hover=T)
+GenePlot(SetAllIdent(supra, id='sample_name'),"EBF2","AKAP12")
 ```
 
 Subq
 
 ```{r}
-GenePlot(SetAllIdent(subq, id='sample_name'),"EBF2","AKAP12", do.hover=T)
+GenePlot(SetAllIdent(subq, id='sample_name'),"EBF2","AKAP12")
 ```
 
 Visce
 
 ```{r}
-GenePlot(SetAllIdent(visce, id='sample_name'),"EBF2","AKAP12", do.hover=T)
+GenePlot(SetAllIdent(visce, id='sample_name'),"EBF2","AKAP12")
 ```
 
 #PDGFRA
@@ -93,48 +93,48 @@ GenePlot(SetAllIdent(visce, id='sample_name'),"EBF2","AKAP12", do.hover=T)
 Supra
 
 ```{r}
-GenePlot(SetAllIdent(supra, id='sample_name'),"EBF2","PDGFRA", do.hover=T)
+GenePlot(SetAllIdent(supra, id='sample_name'),"EBF2","PDGFRA")
 ```
 
 Peri 
 
 ```{r}
-GenePlot(SetAllIdent(peri, id='sample_name'),"EBF2","PDGFRA", do.hover=T)
+GenePlot(SetAllIdent(peri, id='sample_name'),"EBF2","PDGFRA")
 ```
 
 Subq
 
 ```{r}
-GenePlot(SetAllIdent(subq, id='sample_name'),"EBF2","PDGFRA", do.hover=T)
+GenePlot(SetAllIdent(subq, id='sample_name'),"EBF2","PDGFRA")
 ```
 
 Visce
 
 ```{r}
-GenePlot(SetAllIdent(visce, id='sample_name'),"EBF2","PDGFRA", do.hover=T)
+GenePlot(SetAllIdent(visce, id='sample_name'),"EBF2","PDGFRA")
 ```
 
 #FBN1
 
 ```{r}
-GenePlot(SetAllIdent(peri, id='sample_name'),"EBF2","FBN1", do.hover=T)
+GenePlot(SetAllIdent(peri, id='sample_name'),"EBF2","FBN1")
 ```
 
 Supra
 
 ```{r}
-GenePlot(SetAllIdent(subq, id='sample_name'),"EBF2","FBN1", do.hover=T)
+GenePlot(SetAllIdent(subq, id='sample_name'),"EBF2","FBN1")
 ```
 
 Subq
 
 ```{r}
-GenePlot(SetAllIdent(subq, id='sample_name'),"EBF2","FBN1", do.hover=T)
+GenePlot(SetAllIdent(subq, id='sample_name'),"EBF2","FBN1")
 ```
 
 Visce
 
 ```{r}
-GenePlot(SetAllIdent(visce, id='sample_name'),"EBF2","FBN1", do.hover=T)
+GenePlot(SetAllIdent(visce, id='sample_name'),"EBF2","FBN1")
 ```
 

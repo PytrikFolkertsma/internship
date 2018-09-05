@@ -50,22 +50,19 @@ sce_10x <- as.SingleCellExperiment(all10x)
 rowData(sce_maca)['feature_symbol'] <- unlist(lapply(rowData(sce_maca)$gene, function(x){return(toupper(x))}))
 rowData(sce_10x)['feature_symbol'] <- rowData(sce_10x)$gene
 
+counts(sce_10x) <- as.matrix(counts(sce_10x))
+logcounts(sce_10x) <- as.matrix(logcounts(sce_10x))
+#sce_10x <- selectFeatures(sce_10x, suppress_plot = FALSE)
+#sce_10x <- indexCluster(sce_10x, cluster_col = 'sample')
+
 counts(sce_maca) <- as.matrix(counts(sce_maca))
 logcounts(sce_maca) <- as.matrix(logcounts(sce_maca))
 sce_maca <- selectFeatures(sce_maca, suppress_plot = FALSE)
-
-```
-
-```{r}
-counts(sce_10x) <- as.matrix(counts(sce_10x))
-logcounts(sce_10x) <- as.matrix(logcounts(sce_10x))
-sce_10x <- selectFeatures(sce_10x, suppress_plot = FALSE)
-```
-
-
-```{r}
 sce_maca <- indexCluster(sce_maca, cluster_col = 'annotation')
+```
 
+
+```{r}
 library(pheatmap)
 pheatmap(metadata(sce_maca)$scmap_cluster_index, show_rownames = FALSE)
 ```
@@ -79,8 +76,24 @@ scmapCluster_results <- scmapCluster(
   threshold=0.5  #default=0.7 but doesn't give a lot of results
 )
 
+#TODO: predict subtissues
+
 table(scmapCluster_results$scmap_cluster_labs)
 ```
+
+
+```{r}
+sce_maca <- indexCluster(sce_maca, cluster_col = 'subtissue')
+
+scmapCluster_results_subtissue <- scmapCluster(
+  projection = sce_10x, 
+  index_list = list(
+    sce_maca = metadata(sce_maca)$scmap_cluster_index
+  ),
+  threshold=0.5  #default=0.7 but doesn't give a lot of results
+)
+```
+
 
 Mapping to clusters
 
@@ -93,7 +106,7 @@ plot(
   )
 )
 
-#link: http://yggdrasil:7000/custom/googleVis/SankeyID28378886a62.html
+#link: http://yggdrasil:7000/custom/googleVis/SankeyIDc04f191e7330.html
 
 ```
 
@@ -115,7 +128,19 @@ plot(
   )
 )
 
-#link: http://yggdrasil:7000/custom/googleVis/SankeyID28374d62c83.html
+#link: http://yggdrasil:7000/custom/googleVis/SankeyIDc04f6d50d5c.html
+```
+
+
+```{r}
+plot(
+  getSankey(
+    colData(sce_10x)$sample_name, 
+    scmapCluster_results_subtissue$scmap_cluster_labs[,"sce_maca"],
+    plot_height = 400
+  )
+)
+#link: http://yggdrasil:7000/custom/googleVis/SankeyIDc04f3f8dad9c.html
 ```
 
 
