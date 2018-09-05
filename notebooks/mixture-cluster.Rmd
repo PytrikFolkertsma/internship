@@ -36,7 +36,7 @@ Complete list of markers for cluster 12.
 
 ```{r}
 markers <- read.table('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/markergenes/markers_cluster12-negbinom.txt', sep='\t', header=T)
-print(markers)
+print(as.data.frame(markers))
 ```
 
 COL genes 

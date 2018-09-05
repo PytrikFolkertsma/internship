@@ -32,5 +32,7 @@ matrix_mod<-as.matrix(matrix)
 gene<-as.numeric(matrix_mod["gene of interest",])
 correlations<-apply(matrix_mod,1,function(x){cor(gene,x)})
 
+library(data.table)
+demuxlet <- fread("/projects/pytrik/demuxlet.tutorial/out.best")
 
 
