@@ -1,10 +1,14 @@
 ---
 title: "R Notebook"
-output: html_notebook
+output:
+  html_document:
+    df_print: paged
 ---
 
 
 ```{r}
+library(Seurat)
+
 seurobj <- readRDS('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/10x-180831')
 ```
 
@@ -20,7 +24,7 @@ GenePlot(seurobj, 'nUMI', 'nGene', cex.use = 0.5)
 
 
 ```{r}
-PCElbowPlot(seurobj) #15 pcs
+PCElbowPlot(seurobj) #15 pcs?
 ```
 
 ```{r}
