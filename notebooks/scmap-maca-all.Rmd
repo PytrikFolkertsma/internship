@@ -15,34 +15,17 @@ library(SingleCellExperiment)
 Data loading and inspection of the metadata.
 
 ```{r}
-load('../../data/downloads/facs_Fat_seurat_tiss.Robj')
-head(tiss@meta.data)
+load('/data/pub-others/tabula_muris/figshare/180126-facs/maca.seurat_obj.facs.figshare_180126.RData')
+head(seurat_obj@meta.data)
 ```
 
 
 ```{r}
-unique(tiss@meta.data$subtissue)
-#SCAT=subqutaneous adipose tissue
-#GAT=gonadal adipose tissue (white, visceral) https://www.hindawi.com/journals/jobe/2011/490650/
-#BAT=brown adipose tissue
-#MAT=bone marrow adipose tissue 
+unique(seurat_obj@meta.data$tissue_cell_type)
 ```
 
 ```{r}
-unique(tiss@meta.data$annotation)
-```
-
-```{r}
-TSNEPlot(tiss, group.by='annotation', pt.size=0.5)
-```
-
-```{r}
-TSNEPlot(tiss, group.by='subtissue', pt.size=0.5)
-```
-
-
-```{r}
-sce_maca <- as.SingleCellExperiment(tiss)
+sce_maca <- as.SingleCellExperiment(seurat_obj)
 all10x <- readRDS('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/10x')
 sce_10x <- as.SingleCellExperiment(all10x)
 
@@ -58,7 +41,7 @@ logcounts(sce_10x) <- as.matrix(logcounts(sce_10x))
 counts(sce_maca) <- as.matrix(counts(sce_maca))
 logcounts(sce_maca) <- as.matrix(logcounts(sce_maca))
 sce_maca <- selectFeatures(sce_maca, suppress_plot = FALSE)
-sce_maca <- indexCluster(sce_maca, cluster_col = 'annotation')
+sce_maca <- indexCluster(sce_maca, cluster_col = 'tissue_cell_type')
 ```
 
 
@@ -164,6 +147,11 @@ TSNEPlot(all10x, group.by='sample_name', pt.size=0.1, do.label=T)
 
 ```{r}
 TSNEPlot(all10x, group.by='predicted_labels', pt.size=0.1, do.label=T)
+```
+
+```{r}
+#only cluster 12
+#TSNEPlot(SubsetData(SetAllIdent(all10x, id = 'res.0.5'), ident.use = 12), group.by='predicted_labels', pt.size=0.1, do.label=T)
 ```
 
 

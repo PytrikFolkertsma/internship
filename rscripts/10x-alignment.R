@@ -25,7 +25,7 @@ library(Rcpp)
 library(magrittr)
 library(Seurat)
 
-n.ccs <- 20
+n.ccs <- 30
 #ccs.tsne <- c(10, 20, 30) #nr of cc's to use for tsne
 
 ################################################################################
@@ -38,7 +38,7 @@ seurobj_all10x <- readRDS(opt$file)
 
 print('SPLITTING DATASET PER SAMPLE')
 
-samples <- seurobj_all10x@meta.data$sample_name
+samples <- seurobj_all10x@meta.data$timepoint
 sample_names <- unique(samples)
 print('sample names:')
 print(sample_names)
