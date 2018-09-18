@@ -90,13 +90,13 @@ TSNEPlot(aligned_T1_old, group.by='res.0.5', pt.size=0.1)
 Highligted mixture cluster
 
 ```{r}
-DimPlot(aligned_T1_old, reduction.use='tsne', cells.highlight=aligned_T1_old@cell.names[which(aligned_T1_old@meta.data$res.0.5 %in% 12)], pt.size.use=0.1, cols.highlight = 'blue')
+DimPlot(aligned_T1_old, reduction.use='tsne', cells.highlight=aligned_T1_old@cell.names[which(aligned_T1_old@meta.data$res.0.5 %in% 12)], pt.size.use=0.1, cols.highlight = 'blue', cols.use='grey')
 ```
 
 Highlighted T1 cells. It does not look like T1 cells are in the mixture cluster on the right. Could it be the big cluster in T1 with low UMI and gene counts affects the sample alignment and that's the reason we are not seeing cells of T1 in the mixture cluster? Or because T1 consists of four samples? There are also some cells from the mixture cluster scattered accross the whole dataset, so maybe the mixture cells from T1 are there but also scattered accross the data. 
 
 ```{r}
-DimPlot(aligned_T1_old, reduction.use='tsne', cells.highlight=aligned_T1_old@cell.names[which(aligned_T1_old@meta.data$res.0.5 %in% 'T1')], pt.size.use=0.1, cols.highlight = 'blue')
+DimPlot(aligned_T1_old, reduction.use='tsne', cells.highlight=aligned_T1_old@cell.names[which(aligned_T1_old@meta.data$res.0.5 %in% 'T1')], pt.size.use=0.1, cols.use = 'grey', cols.highlight = 'blue')
 ```
 
 We can also look at some of the marker genes for the mixture cluster.
