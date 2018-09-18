@@ -48,6 +48,11 @@ TSNEPlot(seurobj, group.by='Phase', pt.size=0.1)
 ```
 
 ```{r}
+TSNEPlot(seurobj, group.by='res.0.5', pt.size=0.1)
+```
+
+
+```{r}
 FeaturePlot(seurobj, features.plot = 'nUMI', cols.use=c('grey', 'blue'), no.legend=F)
 ```
 
@@ -57,32 +62,6 @@ FeaturePlot(seurobj, features.plot = 'percent.mito', cols.use=c('grey', 'blue'),
 
 ```{r}
 FeaturePlot(seurobj, features.plot = 'nGene', cols.use=c('grey', 'blue'), no.legend = F)
-```
-
-#Markergene expression
-
-```{r}
-FeaturePlot(seurobj, features.plot = 'EBF2', cols.use=c('grey', 'blue'), no.legend = F)
-```
-
-```{r}
-FeaturePlot(seurobj, features.plot = 'TM4SF1', cols.use=c('grey', 'blue'), no.legend = F)
-```
-
-```{r}
-FeaturePlot(seurobj, features.plot = 'LY6K', cols.use=c('grey', 'blue'), no.legend = F)
-```
-
-```{r}
-FeaturePlot(seurobj, features.plot = 'PDGFRA', cols.use=c('grey', 'blue'), no.legend = F)
-```
-
-```{r}
-TSNEPlot(seurobj, group.by='res.0.5', pt.size=0.1)
-```
-
-```{r}
-TSNEPlot(seurobj, group.by='timepoint', pt.size=0.1)
 ```
 
 #Alignment
@@ -126,7 +105,7 @@ We can also look at some of the marker genes for the mixture cluster.
 T1 <- readRDS('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/10x-180831-T1')
 ```
 
-Positive markers.
+Positive markers. (the clustering was performed on the whole dataset)
 
 ```{r fig2, fig.height = 15, fig.width = 10, fig.align = "center"}
 VlnPlot(T1, group.by='res.0.5', nCol=2, features.plot=c('ACTB', 'TPM2', 'ANXA2', 'LDHA', 'PRDX1', 'MYL12B', 'MYL12A', 'CCND1', 'RAB13', 'MAP1B'), point.size.use=-1)
@@ -138,7 +117,7 @@ Negative markers
 VlnPlot(T1, group.by='res.0.5', nCol=2, features.plot=c('MALAT1', 'COL1A1', 'NEAT1', 'FN1', 'COL1A2', 'HIST1H4C', 'CYR61', 'COL3A1'), point.size.use=-1)
 ```
 
-It looks like cluster 11 marks the mixture cluster. The clustering here was performed on the whole dataset (so not on T1). Let's see where cluster 11 is:
+It looks like cluster 11 marks the mixture cluster. The clustering here was performed on the whole dataset. Let's see where cluster 11 is:
 
 ```{r}
 TSNEPlot(seurobj, group.by='res.0.5', pt.size=0.1)
@@ -150,3 +129,20 @@ Does cluster 11 also contain cells from other timepoints?
 table(seurobj@meta.data$timepoint[which(seurobj@meta.data$res.0.5 %in% 11)])
 ```
 
+#Markergene expression
+
+```{r}
+FeaturePlot(seurobj, features.plot = 'EBF2', cols.use=c('grey', 'blue'), no.legend = F)
+```
+
+```{r}
+FeaturePlot(seurobj, features.plot = 'TM4SF1', cols.use=c('grey', 'blue'), no.legend = F)
+```
+
+```{r}
+FeaturePlot(seurobj, features.plot = 'LY6K', cols.use=c('grey', 'blue'), no.legend = F)
+```
+
+```{r}
+FeaturePlot(seurobj, features.plot = 'PDGFRA', cols.use=c('grey', 'blue'), no.legend = F)
+```
