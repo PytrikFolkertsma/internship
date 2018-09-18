@@ -1,0 +1,24 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+
+```{r}
+library(Seurat)
+
+seurobj_aligned <- readRDS('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/10x-180831-aligned')
+seurobj_T1_old_aligned <- readRDS('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/10x-180504-T1-aligned')
+```
+
+
+```{r}
+MetageneBicorPlot(seurobj_aligned, grouping.var = "timepoint", dims.eval = 1:30, display.progress = T) #use 12 cc's for tSNE and clustering
+```
+
+```{r}
+p2 <- MetageneBicorPlot(seurobj_T1_old_aligned, grouping.var = "sample_name", dims.eval = 1:30, display.progress = T)
+```
+
+

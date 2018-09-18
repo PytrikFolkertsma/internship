@@ -1,6 +1,13 @@
 
-### Runs CCA, aligns subspaces 30 CC's, runs tSNE.
+### Runs CCA, aligns subspaces 30 CC's, runs tSNE on 15.
 ### Discarded cells are saved in data/alignment_discarded-cells
+
+### 180504 should be aligned on ... cc's
+### 180831 should be aligned on 12 cc's 
+### 180831_T1_old should be aligned on ... cc's
+
+n.ccs <- 30
+n.ccs.use <- 12
 
 .libPaths('/home/cbmr/pytrik/libraries/')
 setwd('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/scripts-10x-analysis/rscripts/')
@@ -8,13 +15,14 @@ setwd('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/scripts-10x-analysis/rsc
 library(optparse)
 
 option_list <- list(
-  make_option(c('-f', '--file'), type='character', help='Path to the dataset to run the alignment on.')
+  make_option(c('-f', '--file'), type='character', help='Path to the dataset to run the alignment on.'),
+  make_option(c('-c', '--column'), type='character', help='Column to align on (e.g. sample_name or timepoint).')
 )
 
 optionparser <- OptionParser(option_list=option_list)
 opt <- parse_args(optionparser)
 
-if(is.null(opt$file)){
+if(is.null(opt$file) || is.null(opt$column)){
   print_help(optionparser)
   quit()
 }
@@ -24,9 +32,6 @@ if(is.null(opt$file)){
 library(Rcpp)
 library(magrittr)
 library(Seurat)
-
-n.ccs <- 30
-#ccs.tsne <- c(10, 20, 30) #nr of cc's to use for tsne
 
 ################################################################################
 
@@ -38,7 +43,7 @@ seurobj_all10x <- readRDS(opt$file)
 
 print('SPLITTING DATASET PER SAMPLE')
 
-samples <- seurobj_all10x@meta.data$timepoint
+samples <- unlist(seurobj_all10x@meta.data[opt$column])
 sample_names <- unique(samples)
 print('sample names:')
 print(sample_names)
@@ -71,7 +76,7 @@ print('ALIGNING SUBSPACES')
 #explained by CCA is smaller than 0.5 (compared to the variance explained by PCA).
 
 print('Discarding cells whose expression profile cannot be well explained by low-dim CCA compared to low-dim PCA.')
-data <- CalcVarExpRatio(data, reduction.type = "pca", grouping.var = "sample_name", dims.use = 1:10)
+data <- CalcVarExpRatio(data, reduction.type = "pca", grouping.var = opt$column, dims.use = 1:10)
 data.all.save <- data
 data <- SubsetData(object = data, subset.name = "var.ratio.pca", accept.low = 0.5)
 data.discard <- SubsetData(object = data.all.save, subset.name = "var.ratio.pca", accept.high = 0.5)
@@ -80,19 +85,12 @@ print('Saving object discarded cells')
 saveRDS(data.discard, paste(opt$file, 'cca-discardedcells', sep='-'))
 
 print('Aligning subspaces')
-data.aligned <- AlignSubspace(data, reduction.type = "cca", grouping.var = "sample_name", dims.align = 1:n.ccs)
+data.aligned <- AlignSubspace(data, reduction.type = "cca", grouping.var = opt$column, dims.align = 1:n.ccs)
 
 ################################################################################
 
 print('RUNNING TSNE')
-data.aligned <- RunTSNE(data.aligned, reduction.use='cca.aligned', dims.use=1:15)
+data.aligned <- RunTSNE(data.aligned, reduction.use='cca.aligned', dims.use=1:n.ccs.use)
 
 print('SAVING SEURAT OBJECT')
 saveRDS(data.aligned, paste(opt$file, 'aligned', sep='-'))
-
-# for (i in ccs.tsne){
-#   data.aligned <- RunTSNE(data.aligned, reduction.use = "cca.aligned", dims.use = 1:i)
-#   print(paste('saving object: ', 'data/10x__ccregout_cca30-aligned_tsne-1-', i, '.rds', sep=''))
-#   saveRDS(data.aligned, paste('data/10x_ccregout_cca30-aligned_tsne-1-', i, '.rds', sep=''))
-# }
-

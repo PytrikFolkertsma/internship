@@ -3,19 +3,25 @@ title: "R Notebook"
 output:
   html_document:
     df_print: paged
+    toc: true
+    toc_float: 
+      smooth_scroll: true
 ---
-
 
 ```{r}
 library(Seurat)
 
 seurobj <- readRDS('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/10x-180831')
+aligned <- readRDS('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/10x-180831-aligned')
+aligned_T1_old <- readRDS('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/10x-180504-T1-aligned')
 ```
 
+#Quality control plots
 
+For now the data was only filtered on 0.1 percent.mito.
 
 ```{r fig1, fig.height=15, fig.width=10, fig.align="center"}
-VlnPlot(seurobj, c("nGene", "percent.mito", "nUMI"), group.by='timepoint', nCol = 1, point.size.use=-1)
+VlnPlot(seurobj, c("nGene", "percent.mito", "nUMI"), group.by='timepoint', nCol = 1, point.size.use=-1, size.x.use = 10)
 ```
 
 ```{r}
@@ -26,6 +32,8 @@ GenePlot(seurobj, 'nUMI', 'nGene', cex.use = 0.5)
 ```{r}
 PCElbowPlot(seurobj) #15 pcs?
 ```
+
+#Data visualization
 
 ```{r}
 PCAPlot(seurobj, group.by='timepoint', pt.size=0.1)
@@ -51,6 +59,7 @@ FeaturePlot(seurobj, features.plot = 'percent.mito', cols.use=c('grey', 'blue'),
 FeaturePlot(seurobj, features.plot = 'nGene', cols.use=c('grey', 'blue'), no.legend = F)
 ```
 
+#Markergene expression
 
 ```{r}
 FeaturePlot(seurobj, features.plot = 'EBF2', cols.use=c('grey', 'blue'), no.legend = F)
@@ -76,7 +85,68 @@ TSNEPlot(seurobj, group.by='res.0.5', pt.size=0.1)
 TSNEPlot(seurobj, group.by='timepoint', pt.size=0.1)
 ```
 
-```{r}
+#Alignment
 
+```{r}
+TSNEPlot(aligned, group.by='timepoint', pt.size=0.1)
+```
+
+```{r}
+TSNEPlot(aligned, group.by='Phase', pt.size=0.1)
+```
+
+#Aligning T1 with old data
+
+```{r}
+#replacing res.0.5 column of T1 with 'T1'
+aligned_T1_old@meta.data[which(aligned_T1_old@meta.data$sample_name %in% 'T1'),'res.0.5'] = 'T1'
+
+TSNEPlot(aligned_T1_old, group.by='sample_name', pt.size=0.1)
+```
+
+```{r}
+TSNEPlot(aligned_T1_old, group.by='res.0.5', pt.size=0.1)
+```
+
+Highligted mixture cluster
+
+```{r}
+DimPlot(aligned_T1_old, reduction.use='tsne', cells.highlight=aligned_T1_old@cell.names[which(aligned_T1_old@meta.data$res.0.5 %in% 12)], pt.size.use=0.1, cols.highlight = 'blue')
+```
+
+Highlighted T1 cells. It does not look like T1 cells are in the mixture cluster on the right. Could it be the big cluster in T1 with low UMI and gene counts affects the sample alignment and that's the reason we are not seeing cells of T1 in the mixture cluster? Or because T1 consists of four samples? There are also some cells from the mixture cluster scattered accross the whole dataset, so maybe the mixture cells from T1 are there but also scattered accross the data. 
+
+```{r}
+DimPlot(aligned_T1_old, reduction.use='tsne', cells.highlight=aligned_T1_old@cell.names[which(aligned_T1_old@meta.data$res.0.5 %in% 'T1')], pt.size.use=0.1, cols.highlight = 'blue')
+```
+
+We can also look at some of the marker genes for the mixture cluster.
+
+```{r}
+T1 <- readRDS('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/10x-180831-T1')
+```
+
+Positive markers.
+
+```{r fig2, fig.height = 15, fig.width = 10, fig.align = "center"}
+VlnPlot(T1, group.by='res.0.5', nCol=2, features.plot=c('ACTB', 'TPM2', 'ANXA2', 'LDHA', 'PRDX1', 'MYL12B', 'MYL12A', 'CCND1', 'RAB13', 'MAP1B'), point.size.use=-1)
+```
+
+Negative markers
+
+```{r fig3, fig.height = 12, fig.width = 10, fig.align = "center"}
+VlnPlot(T1, group.by='res.0.5', nCol=2, features.plot=c('MALAT1', 'COL1A1', 'NEAT1', 'FN1', 'COL1A2', 'HIST1H4C', 'CYR61', 'COL3A1'), point.size.use=-1)
+```
+
+It looks like cluster 11 marks the mixture cluster. The clustering here was performed on the whole dataset (so not on T1). Let's see where cluster 11 is:
+
+```{r}
+TSNEPlot(seurobj, group.by='res.0.5', pt.size=0.1)
+```
+
+Does cluster 11 also contain cells from other timepoints? 
+
+```{r}
+table(seurobj@meta.data$timepoint[which(seurobj@meta.data$res.0.5 %in% 11)])
 ```
 
