@@ -3,6 +3,9 @@ title: "R Notebook"
 output:
   html_document:
     df_print: paged
+    toc: true
+    toc_float: 
+      smooth_scroll: true
 ---
 
 ```{r}
@@ -19,14 +22,9 @@ load('/data/pub-others/tabula_muris/figshare/180126-facs/maca.seurat_obj.facs.fi
 head(seurat_obj@meta.data)
 ```
 
-
-```{r}
-unique(seurat_obj@meta.data$tissue_cell_type)
-```
-
 ```{r}
 sce_maca <- as.SingleCellExperiment(seurat_obj)
-all10x <- readRDS('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/10x')
+all10x <- readRDS('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/10x-180504')
 sce_10x <- as.SingleCellExperiment(all10x)
 
 #convert maca gene names to uppercase to match 10x gene names
@@ -35,20 +33,27 @@ rowData(sce_10x)['feature_symbol'] <- rowData(sce_10x)$gene
 
 counts(sce_10x) <- as.matrix(counts(sce_10x))
 logcounts(sce_10x) <- as.matrix(logcounts(sce_10x))
-#sce_10x <- selectFeatures(sce_10x, suppress_plot = FALSE)
-#sce_10x <- indexCluster(sce_10x, cluster_col = 'sample')
 
 counts(sce_maca) <- as.matrix(counts(sce_maca))
 logcounts(sce_maca) <- as.matrix(logcounts(sce_maca))
 sce_maca <- selectFeatures(sce_maca, suppress_plot = FALSE)
+```
+
+#Running scmap on the whole MACA dataset
+
+All the different cell types.
+
+```{r}
+as.data.frame(unique(seurat_obj@meta.data$tissue_cell_type))
+```
+
+Setting the right column for clustering.
+
+```{r}
 sce_maca <- indexCluster(sce_maca, cluster_col = 'tissue_cell_type')
 ```
 
-
-```{r}
-library(pheatmap)
-pheatmap(metadata(sce_maca)$scmap_cluster_index, show_rownames = FALSE)
-```
+Predicting cell types in our dataset. 
 
 ```{r}
 scmapCluster_results <- scmapCluster(
@@ -56,29 +61,17 @@ scmapCluster_results <- scmapCluster(
   index_list = list(
     sce_maca = metadata(sce_maca)$scmap_cluster_index
   ),
-  threshold=0.5  #default=0.7 but doesn't give a lot of results
+  threshold=0.5  #default=0.7 
 )
 
-#TODO: predict subtissues
-
-table(scmapCluster_results$scmap_cluster_labs)
+as.data.frame(table(scmapCluster_results$scmap_cluster_labs))
 ```
 
+A lot of the cells got labeled unassigned (22,101 cells from a total of 56,371). This is much less when only using the old MACA fat dataset as reference (then, only 8,110 cells got labeled unassigned). This could be because there are multiple celltypes in the dataset that are likely the same (for example, adipose mesenchymal stem cells, bladder mesenchymal stem cells and thymus mesenchymal stem cells are all mesenchymal stem cells). Scmap requires that for every cell in our dataset to be assigned a certain celltype, the 3 nearest neighbors from the reference dataset should have that celltype. So say we have some mesenchymal cells in our data, then a lot of our cells will be unassigned because the nearest neighbors will be both bladder mesenchymal, thymus mesenchymal and adipose mesenchymal.
 
-```{r}
-sce_maca <- indexCluster(sce_maca, cluster_col = 'subtissue')
+Also interesting to mention is that only 1 cell has an annotation from fat (Fat_smooth muscle cell).
 
-scmapCluster_results_subtissue <- scmapCluster(
-  projection = sce_10x, 
-  index_list = list(
-    sce_maca = metadata(sce_maca)$scmap_cluster_index
-  ),
-  threshold=0.5  #default=0.7 but doesn't give a lot of results
-)
-```
-
-
-Mapping to clusters
+Sankey diagram of how the annotations map to the clusters in our data (cluster 12 = mixture cluster):
 
 ```{r}
 plot(
@@ -88,74 +81,110 @@ plot(
     plot_height = 400
   )
 )
-
-#link: http://yggdrasil:7000/custom/googleVis/SankeyIDc04f191e7330.html
-
+#Link: http://yggdrasil:7000/custom/googleVis/SankeyID4d53a14fdfb.html
 ```
 
-Annotations for cluster 12
+The annotations for the mixture cluster (total of 1,139 cells, of which 376 are unassigned). Most cell types are only assigned for a few cells, but two celltypes have a higher number of assignments:  
+Mamary basal cell (333)
+Marrow hematopoietic stem cell (208)
 
 ```{r}
-table(scmapCluster_results$scmap_cluster_labs[which(colData(sce_10x)$res.0.5 %in% 12),'sce_maca'])
+as.data.frame(table(scmapCluster_results$scmap_cluster_labs[which(colData(sce_10x)$res.0.5 %in% 12),'sce_maca']))
 ```
 
-Annotations for all
+Labeling in the tSNE. 
 
-```{r}
-table(scmapCluster_results$scmap_cluster_labs)
-```
+```{r fig1, fig.height=9, fig.width=20, fig.align="center"}
+#To prevent the plot being not visible because of too many labels.
 
-
-Mapping to subtissues
-
-```{r}
-plot(
-  getSankey(
-    colData(sce_10x)$sample_name, 
-    scmapCluster_results$scmap_cluster_labs[,"sce_maca"],
-    plot_height = 400
-  )
-)
-
-#link: http://yggdrasil:7000/custom/googleVis/SankeyIDc04f6d50d5c.html
-```
-
-
-```{r}
-plot(
-  getSankey(
-    colData(sce_10x)$sample_name, 
-    scmapCluster_results_subtissue$scmap_cluster_labs[,"sce_maca"],
-    plot_height = 400
-  )
-)
-#link: http://yggdrasil:7000/custom/googleVis/SankeyIDc04f3f8dad9c.html
-```
-
-
-```{r}
-predicted_labels <- as.data.frame(
+predicted_labels_all <- as.data.frame(
     row.names=rownames(sce_10x@colData), 
     x=as.vector(scmapCluster_results$scmap_cluster_labs))
-names(predicted_labels) <- 'predicted_labels'
-all10x <- AddMetaData(all10x, metadata=predicted_labels, col.name='predicted_labels')
+names(predicted_labels_all) <- 'predicted_labels'
+all10x <- AddMetaData(all10x, metadata=predicted_labels_all, col.name='predicted_labels')
+TSNEPlot(all10x, group.by='predicted_labels', pt.size=1, do.label=T, label.size=6)
 ```
 
 ```{r}
 TSNEPlot(all10x, group.by='sample_name', pt.size=0.1, do.label=T)
 ```
 
+
+#Running scmap on the MACA Fat subset
+
+Cell types in the fat dataset.
+
 ```{r}
-TSNEPlot(all10x, group.by='predicted_labels', pt.size=0.1, do.label=T)
+seurat_obj@meta.data %>% filter(tissue=="Fat") %>% distinct(tissue_cell_type)
+```
+
+
+Subsetting and preparing the data.
+
+```{r}
+maca_fat <- SubsetData(SetAllIdent(seurat_obj, id='tissue'), ident.use="Fat")
+sce_maca_fat <- as.SingleCellExperiment(maca_fat)
+rowData(sce_maca_fat)['feature_symbol'] <- unlist(lapply(rowData(sce_maca_fat)$gene, function(x){return(toupper(x))}))
+counts(sce_maca_fat) <- as.matrix(counts(sce_maca_fat))
+logcounts(sce_maca_fat) <- as.matrix(logcounts(sce_maca_fat))
+sce_maca_fat <- selectFeatures(sce_maca_fat, suppress_plot = FALSE)
+```
+
+Setting the right column for clustering.
+
+```{r}
+sce_maca_fat <- indexCluster(sce_maca_fat, cluster_col = 'cell_ontology_class')
+```
+
+Predicting cell types in our dataset.
+
+```{r}
+scmapCluster_results_fat <- scmapCluster(
+  projection = sce_10x, 
+  index_list = list(
+    sce_maca_fat = metadata(sce_maca_fat)$scmap_cluster_index
+  ),
+  threshold=0.5  #default=0.7 
+)
+
+as.data.frame(table(scmapCluster_results_fat$scmap_cluster_labs))
+```
+
+Now less cells are unassigned. Are the mesenchymal stem cell of adipose the multipotent progenitors from the old MACA dataset? (similar nr of annotations) 
+
+
+Predictions in cluster 12:
+
+```{r}
+as.data.frame(table(scmapCluster_results_fat$scmap_cluster_labs[which(colData(sce_10x)$res.0.5 %in% 12), 'sce_maca_fat']))
+```
+
+Interestingly, a lot of epithelial cell predictions and not that much mesenchymal stem cell predictions.
+
+Sankey diagram:
+
+```{r}
+plot(
+  getSankey(
+    colData(sce_10x)$res.0.5, 
+    scmapCluster_results_fat$scmap_cluster_labs[,"sce_maca_fat"],
+    plot_height = 400
+  )
+)
+#Link: http://yggdrasil:7000/custom/googleVis/SankeyID4d539a2079.html
+```
+
+
+```{r}
+predicted_labels_fat <- as.data.frame(
+    row.names=rownames(sce_10x@colData), 
+    x=as.vector(scmapCluster_results_fat$scmap_cluster_labs))
+names(predicted_labels_fat) <- 'predicted_labels_fat'
+all10x <- AddMetaData(all10x, metadata=predicted_labels_fat, col.name='predicted_labels_fat')
+TSNEPlot(all10x, group.by='predicted_labels_fat', pt.size=0.1, do.label=T)
 ```
 
 ```{r}
-#only cluster 12
-#TSNEPlot(SubsetData(SetAllIdent(all10x, id = 'res.0.5'), ident.use = 12), group.by='predicted_labels', pt.size=0.1, do.label=T)
-```
-
-
-```{r}
-#saveRDS(all10x, '/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/10x')
+TSNEPlot(all10x, group.by='sample_name', pt.size=0.1, do.label=T)
 ```
 
