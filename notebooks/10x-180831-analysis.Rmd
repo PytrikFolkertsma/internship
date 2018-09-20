@@ -66,6 +66,15 @@ FeaturePlot(seurobj, features.plot = 'nGene', cols.use=c('grey', 'blue'), no.leg
 
 #Alignment
 
+Shared correlation per CC.
+
+```{r}
+load('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/MetageneBicorPlots')
+ccplot_aligned
+```
+
+12 CC's were used for tSNE.
+
 ```{r}
 TSNEPlot(aligned, group.by='timepoint', pt.size=0.1)
 ```
@@ -76,9 +85,17 @@ TSNEPlot(aligned, group.by='Phase', pt.size=0.1)
 
 #Aligning T1 with old data
 
+Shared correlation per CC. 
+
+```{r}
+ccplot_aligned_T1_old
+```
+
+15 CC's were used for tSNE. 
+
 ```{r}
 #replacing res.0.5 column of T1 with 'T1'
-aligned_T1_old@meta.data[which(aligned_T1_old@meta.data$sample_name %in% 'T1'),'res.0.5'] = 'T1'
+aligned_T1_old@meta.data[aligned_T1_old@meta.data$sample_name == 'T1', 'res.0.5'] = 'T1'
 
 TSNEPlot(aligned_T1_old, group.by='sample_name', pt.size=0.1)
 ```
@@ -126,7 +143,7 @@ TSNEPlot(seurobj, group.by='res.0.5', pt.size=0.1)
 Does cluster 11 also contain cells from other timepoints? 
 
 ```{r}
-table(seurobj@meta.data$timepoint[which(seurobj@meta.data$res.0.5 %in% 11)])
+table(seurobj@meta.data$timepoint[seurobj@meta.data$res.0.5 == 11])
 ```
 
 #Markergene expression

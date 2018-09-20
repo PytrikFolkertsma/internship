@@ -12,6 +12,7 @@ output:
 library(Seurat)
 library(scmap)
 library(SingleCellExperiment)
+library(dplyr)
 ```
 
 
@@ -150,7 +151,7 @@ scmapCluster_results_fat <- scmapCluster(
 as.data.frame(table(scmapCluster_results_fat$scmap_cluster_labs))
 ```
 
-Now less cells are unassigned. Are the mesenchymal stem cell of adipose the multipotent progenitors from the old MACA dataset? (similar nr of annotations) 
+Now less cells are unassigned. The "mesenchymal stem cell of adipose" are likely the "multipotent progenitors" from the old MACA dataset (similar nr of annotations and similar colouring in tSNE (see below)).
 
 
 Predictions in cluster 12:

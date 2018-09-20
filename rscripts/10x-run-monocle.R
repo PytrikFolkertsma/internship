@@ -12,6 +12,7 @@ option_list <- list(
   make_option(c('-r', '--regressout'), type='character', help="OPTIONAL. Choose from 'pm-umi', 'pm-umi-cc' or 'cc'.", default='none'),
   make_option(c('-s', '--samplingdown'), type='character', help='OPTIONAL. Integer specifying the number of cells per sample to downsample on.')
   #add option for downsampling
+  #change -d to -c: column to subset on. 
 )
 
 optionparser <- OptionParser(option_list=option_list)
@@ -43,7 +44,7 @@ if(!is.null(opt$samplingdown)){
 }
 
 setwd(opt$outdir)
-output_prefix <- '10x'
+output_prefix <- unlist(strsplit(opt$file, '/'))[length(unlist(strsplit(opt$file, '/')))]
 
 run_monocle_workflow <- function(data, output_name){
   
@@ -113,6 +114,8 @@ run_monocle_workflow <- function(data, output_name){
   }
 }
 
+#############################################
+
 if (opt$depots){
   print('RUN ON DEPOTS')
   subtissues <- seurat_object@meta.data$sample_name2
@@ -128,6 +131,10 @@ if (opt$depots){
   }
 } else {
   print('RUN ON ALL')
-  output_name <- paste(output_prefix, 'monocle', 'downsampled', r.seed, sep='-')
+  if(is.null(opt$samplingdown)){
+    output_name <- paste(output_prefix, 'monocle', sep='-')
+  } else {
+    output_name <- paste(output_prefix, 'monocle', 'downsampled', r.seed, sep='-')
+  }
   run_monocle_workflow(seurat_object, output_name)
 }
