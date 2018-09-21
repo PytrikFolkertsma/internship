@@ -29,12 +29,8 @@ print('Reading data')
 data <- readRDS(opt$file)
 data <- SetAllIdent(data, id=opt$colname)
 
-#data <- SubsetData(data, cells.use=c(rownames(data@meta.data)[which(data@meta.data$sample_name2 %in% 'Visce')], rownames(data@meta.data)[which(data@meta.data$sample_name2 %in% 'Subq')]))
-#data <- SubsetData(data, max.cells.per.ident=20)
-
 print('Finding marker genes')
 #Identify cluster markers
-#cluster_ids <- sort(unique(as.numeric(data@meta.data[,opt$colname]))) # numeric vector, 0, 1, 2, 3, ... (N_CLUSTERS-1)
 cluster_ids <- sort(unique(data@meta.data[,opt$colname])) # numeric vector, 0, 1, 2, 3, ... (N_CLUSTERS-1)
 print('cluster ids:')
 print(cluster_ids)
@@ -43,7 +39,7 @@ cl <- makeCluster(8, type = "FORK")
 clusterEvalQ(cl, library(Seurat))
 clusterEvalQ(cl, library(tidyverse))
 clusterEvalQ(cl, library(rlang)) # needed for using UQ()
-list_of_dfs.all_markers <- parLapply(cl, cluster_ids, function(x) FindMarkers(data, ident.1 = x, min.pct = 0.25, thresh.use = 0.25, test.use=opt$test))
+list_of_dfs.all_markers <- parLapply(cl, cluster_ids, function(x) FindMarkers(data, ident.1 = x, min.pct = 0.1, test.use=opt$test))
 stopCluster(cl)
 
 list_of_dfs.all_markers <- lapply(list_of_dfs.all_markers, function(x) cbind(x,gene=rownames(x))) # add gene name as column
@@ -52,9 +48,6 @@ df.cluster_markers <- bind_rows(list_of_dfs.all_markers, .id="cluster") #combine
 
 print('saving dataframe marker genes')
 write.table(df.cluster_markers, file=paste(opt$outdir, 'markergenes-', opt$colname, opt$test, sep=''), sep='\t', row.names=F, quote=F)
-
-#save(df.cluster_markers, file=paste(opt$outdir, 'markergenes-', opt$colname, opt$test, sep=''))
-
 
 
 

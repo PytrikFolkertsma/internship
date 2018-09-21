@@ -65,12 +65,14 @@ scmapCluster_results <- scmapCluster(
   threshold=0.5  #default=0.7 
 )
 
-as.data.frame(table(scmapCluster_results$scmap_cluster_labs))
+predictions_all <- as.data.frame(table(scmapCluster_results$scmap_cluster_labs)) 
+predictions_all[order(-predictions_all$Freq),]
 ```
+
 
 A lot of the cells got labeled unassigned (22,101 cells from a total of 56,371). This is much less when only using the old MACA fat dataset as reference (then, only 8,110 cells got labeled unassigned). This could be because there are multiple celltypes in the dataset that are likely the same (for example, adipose mesenchymal stem cells, bladder mesenchymal stem cells and thymus mesenchymal stem cells are all mesenchymal stem cells). Scmap requires that for every cell in our dataset to be assigned a certain celltype, the 3 nearest neighbors from the reference dataset should have that celltype. So say we have some mesenchymal cells in our data, then a lot of our cells will be unassigned because the nearest neighbors will be both bladder mesenchymal, thymus mesenchymal and adipose mesenchymal.
 
-Also interesting to mention is that only 1 cell has an annotation from fat (Fat_smooth muscle cell).
+A lot of annotations for mammary stromal cell. Mesenchymal cells are multipotent stromal cells: https://en.wikipedia.org/wiki/Mesenchymal_stem_cell. Stromal cells are connective tissue cells of any organ.
 
 Sankey diagram of how the annotations map to the clusters in our data (cluster 12 = mixture cluster):
 
@@ -90,7 +92,8 @@ Mamary basal cell (333)
 Marrow hematopoietic stem cell (208)
 
 ```{r}
-as.data.frame(table(scmapCluster_results$scmap_cluster_labs[which(colData(sce_10x)$res.0.5 %in% 12),'sce_maca']))
+pred_mixt <- as.data.frame(table(scmapCluster_results$scmap_cluster_labs[which(colData(sce_10x)$res.0.5 %in% 12),'sce_maca']))
+pred_mixt[order(-pred_mixt$Freq),]
 ```
 
 Labeling in the tSNE. 
@@ -106,9 +109,21 @@ all10x <- AddMetaData(all10x, metadata=predicted_labels_all, col.name='predicted
 TSNEPlot(all10x, group.by='predicted_labels', pt.size=1, do.label=T, label.size=6)
 ```
 
+Labeling in tSNE with low frequency annotations removed (less than 300).
+
+```{r fig2, fig.height=5, fig.width=10, fig.align="center"}
+celltypes_unassign <- predictions_all[predictions_all$Freq < 300, 'Var1']
+all10x@meta.data['predictions_all_clean'] <- all10x@meta.data$predicted_labels
+all10x@meta.data[which(all10x@meta.data$predicted_labels %in% celltypes_unassign), 'predictions_all_clean'] = 'unassigned'
+
+TSNEPlot(all10x, group.by='predictions_all_clean', pt.size=0.5)
+```
+
+
 ```{r}
 TSNEPlot(all10x, group.by='sample_name', pt.size=0.1, do.label=T)
 ```
+
 
 
 #Running scmap on the MACA Fat subset
@@ -157,7 +172,8 @@ Now less cells are unassigned. The "mesenchymal stem cell of adipose" are likely
 Predictions in cluster 12:
 
 ```{r}
-as.data.frame(table(scmapCluster_results_fat$scmap_cluster_labs[which(colData(sce_10x)$res.0.5 %in% 12), 'sce_maca_fat']))
+pred_mixt_fat <- as.data.frame(table(scmapCluster_results_fat$scmap_cluster_labs[which(colData(sce_10x)$res.0.5 %in% 12), 'sce_maca_fat']))
+pred_mixt_fat[order(-pred_mixt_fat$Freq),]
 ```
 
 Interestingly, a lot of epithelial cell predictions and not that much mesenchymal stem cell predictions.
@@ -187,5 +203,119 @@ TSNEPlot(all10x, group.by='predicted_labels_fat', pt.size=0.1, do.label=T)
 
 ```{r}
 TSNEPlot(all10x, group.by='sample_name', pt.size=0.1, do.label=T)
+```
+
+#Inspection of the MACA data
+
+I performed PCA and tSNE (20 pc's) on the MACA data.
+
+```{r}
+maca <- readRDS('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/downloads/MACA_data_PCA_tSNE')
+```
+
+Coloured by tissue.
+
+```{r fig3, fig.height=9, fig.width=15, fig.align="center"}
+TSNEPlot(maca, group.by='tissue', label.size=6, do.label=T)
+```
+
+All mesenchymal cells
+
+```{r}
+DimPlot(maca, dim.1=1, dim.2=2, reduction.use='tsne', cells.highlight=maca@cell.names[grep('mesenchymal', maca@meta.data$cell_ontology_class)], cols.highlight='blue', cols.use='gray')
+```
+
+Only the mesenchymal stem cells from adipose
+
+```{r}
+DimPlot(maca, dim.1=1, dim.2=2, reduction.use='tsne', cells.highlight=maca@cell.names[maca@meta.data$cell_ontology_class == 'mesenchymal stem cell of adipose'], cols.highlight='blue', cols.use='gray')
+```
+
+Let's see where some of the most frequent predicted cell types are in the MACA data.
+
+The predictions for our data when using all MACA data: 
+
+```{r}
+predictions_all <- predictions_all[order(-predictions_all$Freq),]
+predictions_all
+```
+
+Mammary stromal cells (11453 annotations). Wikipedia says mesenchymal cells are multipotent stromal cells: https://en.wikipedia.org/wiki/Mesenchymal_stem_cell. Stromal cells are connective tissue cells of any organ: https://en.wikipedia.org/wiki/Stromal_cell. They are in the same cluster as the mesenchymal cells (see DimPlot above). 
+
+```{r}
+DimPlot(maca, dim.1=1, dim.2=2, reduction.use='tsne', cells.highlight=maca@cell.names[maca@meta.data$tissue_cell_type == 'Mammary_stromal cell'], cols.highlight='blue', cols.use='gray')
+```
+
+Mammary basal cells (6960 annotations). I can not find a clear description of what mammary basal cells are.  From http://www.zen-bio.com/products/cells/human-mammary-cells.php: "Basal myoepithelial cell surround the luminal cells and have both contractile muscle and epithelial properties. Basal myoepithelial cells tend to dominate normal primary cultures. Additionally, basal-type breast cancers are typically estrogen and progesterone receptor negative." Interestingly, they are not in the mesenchymal cluster. 
+
+```{r}
+DimPlot(maca, dim.1=1, dim.2=2, reduction.use='tsne', cells.highlight=maca@cell.names[maca@meta.data$tissue_cell_type == 'Mammary_basal cell'], cols.highlight='blue', cols.use='gray')
+```
+
+Which cells in our data were labeled as mammary basal cells? 
+
+```{r}
+DimPlot(all10x, dim.1=1, dim.2=2, reduction.use='tsne', cells.highlight=all10x@cell.names[all10x@meta.data$predicted_labels == 'Mammary_basal cell'], cols.highlight='blue', cols.use='gray')
+```
+
+And which were labeled as mammary stromal cells?
+
+```{r}
+DimPlot(all10x, dim.1=1, dim.2=2, reduction.use='tsne', cells.highlight=all10x@cell.names[all10x@meta.data$predicted_labels == 'Mammary_stromal cell'], cols.highlight='blue', cols.use='grey')
+```
+
+Interesting to see. We can see the 'signal' from mammary stromal cells to basal cells going from the top left to the bottom right in the tSNE plot. 
+
+Continuing with seeing where the most frequent predicted celltypes are. 
+Trachea_epithelial cell (6924)
+
+```{r}
+DimPlot(maca, dim.1=1, dim.2=2, reduction.use='tsne', cells.highlight=maca@cell.names[maca@meta.data$tissue_cell_type == 'Trachea_epithelial cell'], cols.highlight='blue', cols.use='gray')
+```
+
+```{r}
+DimPlot(maca, dim.1=1, dim.2=2, reduction.use='tsne', cells.highlight=maca@cell.names[maca@meta.data$tissue_cell_type == 'Aorta_fibroblast'], cols.highlight='blue', cols.use='gray')
+```
+
+```{r}
+DimPlot(maca, dim.1=1, dim.2=2, reduction.use='tsne', cells.highlight=maca@cell.names[maca@meta.data$tissue_cell_type == 'Aorta_fibroblast'], cols.highlight='blue', cols.use='gray')
+```
+
+Where are the Trachea_epithelial cell and Aorta_fibroblast in our data?
+
+```{r}
+DimPlot(all10x, dim.1=1, dim.2=2, reduction.use='tsne', cells.highlight=all10x@cell.names[all10x@meta.data$predicted_labels == 'Trachea_epithelial cell'], cols.highlight='blue', cols.use='gray')
+```
+
+```{r}
+DimPlot(all10x, dim.1=1, dim.2=2, reduction.use='tsne', cells.highlight=all10x@cell.names[all10x@meta.data$predicted_labels == 'Aorta_fibroblast'], cols.highlight='blue', cols.use='gray')
+```
+
+#Closer inspection MACA data for mixture cluster
+
+The predictions when using all MACA data:
+
+```{r}
+pred_mixt_ordered <- pred_mixt[order(-pred_mixt$Freq),]
+pred_mixt_ordered
+```
+
+The predictions when only using the Fat data:
+
+```{r}
+pred_mixt_fat[order(-pred_mixt_fat$Freq),]
+```
+
+When using all MACA data, most cells in the mixture cluster got assigned as mammary basal cells or hematopoetic stem cells. When only using the Fat data, most cells got assigned as epithelial cell.
+
+Are the mammary basal cells and hematopoetic stem cells close to the Fat epithelial cells in the MACA data?
+
+
+```{r fig4, fig.height=6, fig.width=10, fig.align="center"}
+maca@meta.data['annotations_mixture'] <- maca@meta.data$tissue_cell_type
+maca@meta.data[which(!(maca@meta.data$annotations_mixture %in% pred_mixt_ordered$Var1[1:5])), 'annotations_mixture'] = 'rest' 
+maca@meta.data[maca@meta.data$tissue_cell_type == 'Fat_epithelial cell', 'annotations_mixture'] = 'Fat_epithelial cell'
+
+TSNEPlot(maca, group.by='annotations_mixture')
 ```
 
