@@ -75,17 +75,43 @@ DimPlot(seurat_obj, reduction.use='tsne', cells.highlight = seurat_obj@cell.name
 Which cells are in cluster 289?
 
 ```{r}
-table(seurat_obj@meta.data$tissue_cell_type[seurat_obj@meta.data$res.40 == 289])
+as.data.frame(table(seurat_obj@meta.data$tissue_cell_type[seurat_obj@meta.data$res.40 == 289]))
 ```
 
-```{r}
+And which cells are in 304?
 
+```{r}
+as.data.frame(table(seurat_obj@meta.data$tissue_cell_type[seurat_obj@meta.data$res.40 == 304]))
+```
+
+Where is cluster 304 in the MACA data?
+
+```{r}
+DimPlot(seurat_obj, reduction.use='tsne', cells.highlight = seurat_obj@cell.names[seurat_obj@meta.data$res.40 == 304], cols.use = 'grey', cols.highlight='blue')
+```
+
+
+```{r}
 predicted_labels <- as.data.frame(
     row.names=rownames(sce_10x@colData), 
     x=as.vector(scmapCluster_results$scmap_cluster_labs))
 names(predicted_labels) <- 'predicted_labels'
 all10x <- AddMetaData(all10x, metadata=predicted_labels, col.name='predicted_labels')
-TSNEPlot(all10x, group.by='predicted_labels', pt.size=0.1, do.label=T)
+#TSNEPlot(all10x, group.by='predicted_labels', pt.size=0.1, do.label=T)
+
+all10x@meta.data['predicted_labels_clean'] <- all10x@meta.data$predicted_labels
+all10x@meta.data[which(all10x@meta.data$predicted_labels %in% predictions_all$Var1[4:length(predictions_all$Var1)]), 'predicted_labels_clean'] = 'unassigned' 
+
+TSNEPlot(all10x, group.by='predicted_labels_clean', pt.size=0.1)
+```
+
+In the MACA data, cluster 289 mostly contains mammary basal cells (35) and mammary stromal cells (14). Cluster 304 mostly contains mammary stromal cells (35) and fat mesenchymal stem cells (10). 
+
+Since cluster 289 only contains 59 cells, this also shows the homogeneity of our cells, because more than 40.000 of our cells are closest to only these 59 cells in the MACA dataset. 
+
+
+```{r}
 
 ```
+
 

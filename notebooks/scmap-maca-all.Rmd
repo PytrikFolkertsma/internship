@@ -362,11 +362,11 @@ TSNEPlot(maca, group.by='annotations_mixture')
 TSNEPlot(maca, group.by='annotations_mixture', cells.use=maca@cell.names[maca@meta.data$annotations_mixture != 'rest'])
 ```
 
-#Summary and conclusions
+#Summary
 
 When using the Fat subset as a reference, most cells got assigned as mesenchymal stem cell. The mixture cluster got assigned as epithelial cells and cells close to the mixture cluster got assigned as smooth muscle cells.
 
-When using the whole MACA dataset as a reference, most cells in our dataset got assigned mammary stromal cell and mammary basal cell. Mesenchymal cells are also called multipotent stromal cells, and the mammary stromal cells are in the same cluster as the mesenchymal cells in the MACA data. The mammary basal cells don't group in the mesenchymal cluster in the MACA data and are clearly different from the stromal cells. The pattern of assignments in our data is interesting to see (see plots below). It does not seem to be related to the subtissue. Could the pattern actually represent the development of our preadipocytes? 
+When using the whole MACA dataset as a reference, most cells in our dataset got assigned mammary stromal cell and mammary basal cell. Mesenchymal cells are also called multipotent stromal cells, and the mammary stromal cells are in the same cluster as the mesenchymal cells in the MACA data. The mammary basal cells don't group in the mesenchymal cluster in the MACA data. The pattern of assignments in our data is interesting to see (see plots below). It does not seem to be related to the subtissue. Could the pattern represent the development of our preadipocytes? Cells getting the assignment basal cell could be further developed than cells getting the assignment stromal cell.
 
 ```{r}
 DimPlot(all10x, dim.1=1, dim.2=2, reduction.use='tsne', cells.highlight=all10x@cell.names[all10x@meta.data$predicted_labels == 'Mammary_stromal cell'], cols.highlight='blue', cols.use='gray')
