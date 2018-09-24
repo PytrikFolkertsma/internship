@@ -1,0 +1,91 @@
+---
+title: "R Notebook"
+output:
+  html_document:
+    df_print: paged
+    toc: true
+    toc_float: 
+      smooth_scroll: true
+---
+
+```{r}
+library(Seurat)
+library(scmap)
+library(SingleCellExperiment)
+library(dplyr)
+```
+
+
+Data loading and inspection of the metadata.
+
+```{r}
+seurat_obj <- readRDS('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/downloads/MACA_data_PCA_clustering')
+head(seurat_obj@meta.data)
+```
+
+```{r}
+sce_maca <- as.SingleCellExperiment(seurat_obj)
+all10x <- readRDS('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/10x-180504')
+sce_10x <- as.SingleCellExperiment(all10x)
+
+#convert maca gene names to uppercase to match 10x gene names
+rowData(sce_maca)['feature_symbol'] <- unlist(lapply(rowData(sce_maca)$gene, function(x){return(toupper(x))}))
+rowData(sce_10x)['feature_symbol'] <- rowData(sce_10x)$gene
+
+counts(sce_10x) <- as.matrix(counts(sce_10x))
+logcounts(sce_10x) <- as.matrix(logcounts(sce_10x))
+
+counts(sce_maca) <- as.matrix(counts(sce_maca))
+logcounts(sce_maca) <- as.matrix(logcounts(sce_maca))
+sce_maca <- selectFeatures(sce_maca, suppress_plot = FALSE)
+```
+
+#Running scmap on the whole MACA dataset
+
+Setting the right column for clustering.
+
+```{r}
+sce_maca <- indexCluster(sce_maca, cluster_col = 'res.40')
+```
+
+Predicting cell types in our dataset. Now we can use a higher threshold and still get a lot of assignments. 
+
+```{r}
+scmapCluster_results <- scmapCluster(
+  projection = sce_10x, 
+  index_list = list(
+    sce_maca = metadata(sce_maca)$scmap_cluster_index
+  ),
+  threshold=0.7  #default=0.7 
+)
+
+predictions_all <- as.data.frame(table(scmapCluster_results$scmap_cluster_labs)) 
+predictions_all <- predictions_all[order(-predictions_all$Freq),]
+predictions_all
+```
+
+Var1 is the cluster number, Freq the amount of predictions in our dataset
+
+Where is cluster 289 in the MACA data?
+
+```{r}
+DimPlot(seurat_obj, reduction.use='tsne', cells.highlight = seurat_obj@cell.names[seurat_obj@meta.data$res.40 == 289], cols.use = 'grey', cols.highlight='blue')
+```
+
+Which cells are in cluster 289?
+
+```{r}
+table(seurat_obj@meta.data$tissue_cell_type[seurat_obj@meta.data$res.40 == 289])
+```
+
+```{r}
+
+predicted_labels <- as.data.frame(
+    row.names=rownames(sce_10x@colData), 
+    x=as.vector(scmapCluster_results$scmap_cluster_labs))
+names(predicted_labels) <- 'predicted_labels'
+all10x <- AddMetaData(all10x, metadata=predicted_labels, col.name='predicted_labels')
+TSNEPlot(all10x, group.by='predicted_labels', pt.size=0.1, do.label=T)
+
+```
+

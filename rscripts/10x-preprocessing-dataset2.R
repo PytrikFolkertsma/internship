@@ -6,9 +6,9 @@ library(Seurat)
 library(magrittr)
 library(dplyr)
 
-n.pcs <- 15
+#n.pcs <- 15
 
-resolutions <- c(0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1)
+resolutions <- c(0.3, 0.5, 0.7, 1, 1.2, 1.5, 2)
 # 
 # ################################################################################
 # 
@@ -79,7 +79,7 @@ resolutions <- c(0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1)
 # #VlnPlot(seurobj, c("nUMI"), group.by='timepoint', nCol = 1, point.size.use=-1)
 # 
 # print('filter out S6')
-# seurobj <- SubsetData(seurobj, cells.use=rownames(seurobj@meta.data)[which(!(seurobj@meta.data$timepoint %in% 'T6'))])
+# seurobj <- SubsetData(seurobj, cells.use=rownames(seurobj@meta.data)[seurobj@meta.data$timepoint != 'T6'])
 # 
 # print('filter cells')
 # seurobj <- FilterCells(seurobj, subset.names=c("percent.mito"), low.thresholds = c(-Inf), high.thresholds = c(0.1))
