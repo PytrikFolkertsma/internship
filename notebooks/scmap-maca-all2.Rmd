@@ -56,7 +56,7 @@ scmapCluster_results <- scmapCluster(
   index_list = list(
     sce_maca = metadata(sce_maca)$scmap_cluster_index
   ),
-  threshold=0.7  #default=0.7 
+  threshold=0.8  #default=0.7 
 )
 
 predictions_all <- as.data.frame(table(scmapCluster_results$scmap_cluster_labs)) 
@@ -108,10 +108,4 @@ TSNEPlot(all10x, group.by='predicted_labels_clean', pt.size=0.1)
 In the MACA data, cluster 289 mostly contains mammary basal cells (35) and mammary stromal cells (14). Cluster 304 mostly contains mammary stromal cells (35) and fat mesenchymal stem cells (10). 
 
 Since cluster 289 only contains 59 cells, this also shows the homogeneity of our cells, because more than 40.000 of our cells are closest to only these 59 cells in the MACA dataset. 
-
-
-```{r}
-
-```
-
 

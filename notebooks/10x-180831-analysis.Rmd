@@ -192,3 +192,116 @@ FeaturePlot(seurobj, reduction.use='tsne18', features.plot = 'LY6K', cols.use=c(
 ```{r}
 FeaturePlot(seurobj, reduction.use='tsne18', features.plot = 'PDGFRA', cols.use=c('grey', 'blue'), no.legend = F)
 ```
+
+
+#DE between T1-T2-T3 and T4-T5
+
+
+
+```{r}
+markers.time <- read.table('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/markergenes/180831/markers_time-combined_negbinom', sep='\t', header=T)
+markers.time.1 <- markers.time[markers.time$cluster == 'T1-T2-T3', ]
+```
+
+Positive marker genes T1-T2-T3 
+
+```{r}
+as.data.frame(markers.time.1[order(-markers.time.1$avg_logFC),])
+```
+
+Negative markers T1-T2-T3 or positive markers T4-T5
+
+```{r}
+as.data.frame(markers.time.1[order(markers.time.1$avg_logFC),])
+```
+
+Interesting: FN1 was a negative marker gene for the mixture cluster. 
+
+Positive marker genes T1-T2-T3:
+
+```{r fig10, fig.height = 15, fig.width = 10, fig.align = "center"}
+FeaturePlot(seurobj, features.plot=as.vector(markers.time.1[order(-markers.time.1$avg_logFC),'gene'][1:10]), cols.use=c('gray', 'blue'), no.legend=F, nCol=2)
+```
+
+```{r fig4, fig.height = 15, fig.width = 10, fig.align = "center"}
+VlnPlot(seurobj, features.plot=as.vector(markers.time.1[order(-markers.time.1$avg_logFC),'gene'][1:10]), group.by='timepoint', nCol=2, point.size.use = -1)
+```
+
+Positive marker genes T4-T5
+
+```{r fig5, fig.height = 15, fig.width = 10, fig.align = "center"}
+FeaturePlot(seurobj, features.plot=as.vector(markers.time.1[order(markers.time.1$avg_logFC),'gene'][1:10]), cols.use=c('gray', 'blue'), no.legend=F, nCol=2)
+```
+
+```{r fig6, fig.height = 15, fig.width = 10, fig.align = "center"}
+VlnPlot(seurobj, features.plot=as.vector(markers.time.1[order(markers.time.1$avg_logFC),'gene'][1:10]), group.by='timepoint', nCol=2, point.size.use = -1)
+```
+
+FAB4: FABP4 is a known mature adipocyte marker. FABP4 encodes the fatty acid binding protein found in adipocytes. Fatty acid binding proteins are a family of small, highly conserved, cytoplasmic proteins that bind long-chain fatty acids and other hydrophobic ligands. It is thought that FABPs roles include fatty acid uptake, transport, and metabolism. [provided by RefSeq, Jul 2008] \\
+
+CFD: This gene encodes a member of the S1, or chymotrypsin, family of serine peptidases. This protease catalyzes the cleavage of factor B, the rate-limiting step of the alternative pathway of complement activation. This protein also functions as an adipokine, a cell signaling protein secreted by adipocytes, which regulates insulin secretion in mice. \\
+
+APOE: The protein encoded by this gene is a major apoprotein of the chylomicron. It binds to a specific liver and peripheral cell receptor, and is essential for the normal catabolism of triglyceride-rich lipoprotein constituents. This gene maps to chromosome 19 in a cluster with the related apolipoprotein C1 and C2 genes. Mutations in this gene result in familial dysbetalipoproteinemia, or type III hyperlipoproteinemia (HLP III), in which increased plasma cholesterol and triglycerides are the consequence of impaired clearance of chylomicron and VLDL remnants. [provided by RefSeq, Jun 2016] \\
+
+G0S2: G0S2 (G0/G1 Switch 2) is a Protein Coding gene. Among its related pathways are Metabolism and Regulation of lipid metabolism by Peroxisome proliferator-activated receptor alpha (PPARalpha). \\
+
+SCD: This gene encodes an enzyme involved in fatty acid biosynthesis, primarily the synthesis of oleic acid. The protein belongs to the fatty acid desaturase family and is an integral membrane protein located in the endoplasmic reticulum. Transcripts of approximately 3.9 and 5.2 kb, differing only by alternative polyadenlyation signals, have been detected. A gene encoding a similar enzyme is located on chromosome 4 and a pseudogene of this gene is located on chromosome 17. [provided by RefSeq, Sep 2015]
+
+#Markers literature
+
+Marker genes for mature brown/beige compared to white mentioned by Seale 2016: UCP1, DIO2, CIDEA, PPARGC1A, PPARA, COX7A1, COX8B, PRDM16, EBF2. \\
+
+```{r fig7, fig.height = 12, fig.width = 10, fig.align = "center"}
+VlnPlot(seurobj, features.plot=c('UCP1', 'DIO2', 'CIDEA', 'PPARGC1A', 'PPARA', 'COX7A1', 'PRDM16', 'EBF2'), group.by='timepoint', point.size.use = -1, nCol=2)
+```
+
+COX7A1 seems like the only interesting gene. Let's see if it's higher expressed in certain clusters.
+
+```{r fig8, fig.height = 4, fig.width = 10, fig.align = "center"}
+VlnPlot(seurobj, features.plot='COX7A1', group.by='res.0.5', point.size.use = -1)
+```
+
+It does seem to be higher expressed in cluster 10 (T5).
+
+```{r}
+DimPlot(seurobj, reduction.use='tsne18', group.by='res.0.5', pt.size=0.1)
+```
+
+```{r}
+DimPlot(seurobj, reduction.use='tsne18', group.by='timepoint', pt.size=0.1)
+```
+
+Expression of EBF2 in clusters.
+
+```{r fig9, fig.height = 4, fig.width = 10, fig.align = "center"}
+VlnPlot(seurobj, features.plot='EBF2', group.by='res.0.5', point.size.use = -1)
+```
+
+
+#DE mixture cluster
+
+```{r}
+markers.mixture <- read.table('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/markergenes/180831/markers_mixture_negbinom', sep='\t', header=T)
+```
+
+Positive markers mixture cluster.
+
+```{r}
+as.data.frame(markers.mixture[order(-markers.mixture$avg_logFC),])
+```
+
+Negative markers mixture cluster
+
+```{r}
+as.data.frame(markers.mixture[order(markers.mixture$avg_logFC),])
+```
+
+MALAT1 and NEAT1 again in the top. A lot of the negative markers for the mixture cluster are positive markers for T4-T5 (see above). Probably because the mixture cluster mainly contains cells from T1, T2 and T3 and only a few from T4 and T5. Looking at the expression of those genes in the mixture cluster grouped by timepoint, we can see that they go up as well (CFD, MT1X, APOE, G0S2), so they are found as markers for the mixture cluster because we only have a few T4-T5 cells in our mixture cluster.  
+
+```{r fig11, fig.height = 5, fig.width = 10, fig.align = "center"}
+VlnPlot(SetAllIdent(seurobj, id='res.0.5'), ident.include=11,  features.plot=as.vector(markers.mixture[order(markers.mixture$avg_logFC),'gene'][1:10]), group.by='timepoint', point.size.use=0.5, nCol=5)
+```
+
+
+
+

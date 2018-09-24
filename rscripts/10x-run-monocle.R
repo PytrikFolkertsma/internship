@@ -1,4 +1,6 @@
-.libPaths('/home/cbmr/pytrik/libraries/')
+.libPaths("/usr/local/lib64/R/library")
+.libPaths('/raid5/home/cbmr/pytrik/libraries')
+
 setwd('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/scripts-10x-analysis/rscripts/')
 
 r.seed <- 11
@@ -33,8 +35,8 @@ if (!(opt$regressout == 'none')){
 
 ###################################################################################
 
-library(monocle)
 library(Seurat)
+library(monocle)
 
 print('LOADING SEURAT OBJECT')
 seurat_object <- readRDS(opt$file)
