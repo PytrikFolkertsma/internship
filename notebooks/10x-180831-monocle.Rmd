@@ -33,7 +33,7 @@ It does not seem a good idea to regress percent.mito and nUMI out.
 Are there clusters specific to one branch in the cell cycle regressed out trajectory? 
 
 ```{r fig2, fig.height = 12, fig.width = 10, fig.align = "center"}
-plot_cell_trajectory(cds_cc, color_by='res.1.5') + facet_wrap(~res.1.5)
+plot_cell_trajectory(cds_cc, color_by='res.0.7') + facet_wrap(~res.0.7)
 ```
 
 
@@ -48,7 +48,13 @@ plot_cell_trajectory(cds_cc, group_by='State')
 
 
 ```{r}
+
+```
+
+```{r}
 markers_monocle_states <- read.table('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/markergenes/180831/markers_monocle-states', header=T)
 markers_monocle_states['gene'] <- rownames(markers_monocle_states) 
+rownames(markers_monocle_states) <- NULL
+markers_monocle_states
 ```
 

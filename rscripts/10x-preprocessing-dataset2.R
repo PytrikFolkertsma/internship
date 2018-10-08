@@ -52,14 +52,14 @@ print('filter out S6')
 seurobj <- SubsetData(seurobj, cells.use=rownames(seurobj@meta.data)[seurobj@meta.data$timepoint != 'T6'])
 
 print('filter cells')
-seurobj <- FilterCells(seurobj, subset.names=c("percent.mito"), low.thresholds = c(-Inf), high.thresholds = c(0.1))
+#seurobj <- FilterCells(seurobj, subset.names=c("percent.mito"), low.thresholds = c(-Inf), high.thresholds = c(0.1))
 
 print('normalizing data')
 seurobj <- NormalizeData(seurobj, normalization.method = "LogNormalize", scale.factor = 1e4)
 
 print('scaling data (regressing out nUMI and percent.mito)')
-#seurobj <- ScaleData(seurobj, vars.to.regress = c("nUMI", "percent.mito"), do.par=T, num.cores=10)
-seurobj <- ScaleData(seurobj, do.par=T, num.cores=10)
+seurobj <- ScaleData(seurobj, vars.to.regress = c("nUMI", "percent.mito"), do.par=T, num.cores=10)
+#seurobj <- ScaleData(seurobj, do.par=T, num.cores=10)
 
 ################################################################################
 
@@ -100,6 +100,6 @@ seurobj <- RunTSNE(seurobj, reduction.use='pca', dims.use=1:n.pcs)
 
 print('SAVING DATASET')
 
-print('saving dataset as 10x-180831-noreg')
-saveRDS(seurobj, 'data/10x-180831-nogreg')
+print('saving dataset as 10x-180831-2')
+saveRDS(seurobj, 'data/10x-180831-2')
 

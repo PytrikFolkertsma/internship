@@ -8,16 +8,58 @@ library(Seurat)
 library(SingleCellExperiment)
 ```
  
+#Klein data
+
+Data: mouse embryo stem cells
 
 ```{r}
 klein <- readRDS('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/downloads/klein.rds')
+klein <- as.seurat(klein)
 ```
 
 ```{r}
-#counts(sce_10x) <- as.matrix(counts(sce_10x))
-#logcounts(sce_10x) <- as.matrix(logcounts(sce_10x))
-logcounts_malat1 <- logcounts(klein)[rownames(klein) == 'Malat1',]
-hist(counts_malat1)
+VlnPlot(klein, features.plot=c('Malat1', 'Neat1'), point.size.use=0.1, group.by='cell_type1')
 ```
 
+#GTEx
+
+```{r}
+load('/data/rna-seq/gtex/v7-seurat_objs/gtex.seurat_obj.gene_tpm.RData')
+```
+
+
+```{r fig1, fig.height=8, fig.width=10, fig.align="center"}
+VlnPlot(seurat_obj, features.plot=c('ENSG00000251562', 'ENSG00000245532'), point.size.use=0.1, group.by='SMTS', nCol=1, x.lab.rot = T)
+```
+
+```{r}
+subset <- FilterCells(seurat_obj, subset.names=c('ENSG00000251562', 'ENSG00000245532'), high.thresholds=c(0.5, 0.5))
+```
+
+```{r}
+cells <- as.data.frame(table(subset@meta.data$SMTSD))
+cells[order(-cells$Freq),]
+```
+
+
+
+#MACA
+
+```{r}
+load('/data/pub-others/tabula_muris/figshare/180126-facs/maca.seurat_obj.facs.figshare_180126.RData')
+```
+
+```{r fig2, fig.height=8, fig.width=10, fig.align="center"}
+VlnPlot(seurat_obj, features.plot=c('Malat1', 'Neat1'), point.size.use=0.1, group.by='tissue', nCol=1, x.lab.rot = T)
+```
+
+```{r}
+subset <- FilterCells(seurat_obj, subset.names=c('Malat1', 'Neat1'), high.thresholds=c(0.5, 0.5))
+```
+
+```{r}
+#{r fig3, fig.height=8, fig.width=10, fig.align="center"}
+cells <- as.data.frame(table(subset@meta.data$cell_ontology_class))
+cells[order(-cells$Freq),]
+```
 

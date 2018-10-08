@@ -45,7 +45,19 @@ PCAPlot(seurobj, group.by='timepoint', pt.size=0.1)
 If EBF2 marks brown then not. 
 
 ```{r}
-FeaturePlot(seurobj, reduction.use='pca', features.plot='EBF2', pt.size=1, cols.use=c('gray', 'blue'), no.legend=F)
+FeaturePlot(seurobj, reduction.use='pca', features.plot=c('EBF2'), pt.size=1, cols.use=c('gray', 'blue'), no.legend=F)
+```
+
+A few clusters in the data have much higher expression of 'ADIPOQ', 'SCD', 'RBP4', 'G0S2', 'PLIN4', 'FABP5'. This is captured by PC2. 
+
+```{r fig17, fig.height = 10, fig.width = 10, fig.align = "center"}
+FeaturePlot(seurobj, reduction.use='pca', features.plot=c('ADIPOQ', 'SCD', 'RBP4', 'G0S2', 'PLIN4', 'FABP5'), pt.size=1, cols.use=c('gray', 'blue'), no.legend=F, nCol=2)
+```
+
+
+
+```{r fig18, fig.height = 10, fig.width = 10, fig.align = "center"}
+FeaturePlot(seurobj, reduction.use='pca', features.plot=c('PLA2G2A', 'MT1X', 'APOD', 'DPT', 'PTGDS', 'IGF2'), pt.size=1, cols.use=c('gray', 'blue'), no.legend=F, nCol=2)
 ```
 
 
@@ -219,7 +231,7 @@ Interesting: FN1 was a negative marker gene for the mixture cluster.
 Positive marker genes T1-T2-T3:
 
 ```{r fig10, fig.height = 15, fig.width = 10, fig.align = "center"}
-FeaturePlot(seurobj, features.plot=as.vector(markers.time.1[order(-markers.time.1$avg_logFC),'gene'][1:10]), cols.use=c('gray', 'blue'), no.legend=F, nCol=2)
+FeaturePlot(seurobj, reduction.use='tsne18',  features.plot=as.vector(markers.time.1[order(-markers.time.1$avg_logFC),'gene'][1:10]), cols.use=c('gray', 'blue'), no.legend=F, nCol=2)
 ```
 
 ```{r fig4, fig.height = 15, fig.width = 10, fig.align = "center"}
@@ -229,7 +241,7 @@ VlnPlot(seurobj, features.plot=as.vector(markers.time.1[order(-markers.time.1$av
 Positive marker genes T4-T5
 
 ```{r fig5, fig.height = 15, fig.width = 10, fig.align = "center"}
-FeaturePlot(seurobj, features.plot=as.vector(markers.time.1[order(markers.time.1$avg_logFC),'gene'][1:10]), cols.use=c('gray', 'blue'), no.legend=F, nCol=2)
+FeaturePlot(seurobj, reduction.use='tsne18', features.plot=as.vector(markers.time.1[order(markers.time.1$avg_logFC),'gene'][1:10]), cols.use=c('gray', 'blue'), no.legend=F, nCol=2)
 ```
 
 ```{r fig6, fig.height = 15, fig.width = 10, fig.align = "center"}
@@ -290,7 +302,7 @@ top10
 DimPlot(seurobj, reduction.use='tsne18', group.by='res.1.5', pt.size=0.1, do.label=T)
 ```
 
-
+Sorted on avg_logFC
 
 ```{r}
 top10_orderedLogFC <- top10[order(-top10$avg_logFC),]
@@ -304,10 +316,9 @@ FeaturePlot(seurobj, reduction.use='tsne18', features.plot=as.vector(unique(top1
 ```
 
 
-Cluster 6 and 7
 
-```{r fig13, fig.height=10, fig.width=15, fig.align="center"}
-FeaturePlot(seurobj, reduction.use='tsne18', features.plot=c('PLA2G2A', 'SAA1', 'MT1X'), cols.use=c('gray', 'blue'), no.legend=F, nCol = 2)
+```{r fig13, fig.height=30, fig.width=15, fig.align="center"}
+FeaturePlot(seurobj, reduction.use='tsne18', features.plot=c('PLA2G2A', 'SAA1', 'MT1X', 'APOD', 'DPT', 'CST3', 'PTGDS', 'IGF2', 'THBS1', 'TM4SF1'), cols.use=c('gray', 'blue'), no.legend=F, nCol = 2)
 ```
 
 Heatmap of the top 10 marker genes per cluster
