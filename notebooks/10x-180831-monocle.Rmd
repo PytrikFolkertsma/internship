@@ -1,0 +1,54 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+Monocle2 analysis. The DE genes for cluster res.1.5 were used for ordering (~2631 genes). The analysis was run 4 times: with no variables regressed out, with the percent.mito and nUMI regressed out, with cell cycle effects regressed out and with all these variables regressed out. 
+
+```{r}
+library(monocle)
+library(Seurat)
+
+seurobj <- readRDS('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/10x-180831')
+
+cds <- readRDS('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/monocle/180831/10x-180831-monocle')
+cds_cc <- readRDS('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/monocle/180831/10x-180831-monocle-cc')
+cds_pm_umi <- readRDS('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/monocle/10x-180831-monocle-pm-umi2')
+cds_pm_umi_cc <- readRDS('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/monocle/10x-180831-monocle-pm-umi-cc2')
+```
+
+
+```{r fig1, fig.height = 8, fig.width = 10, fig.align = "center"}
+plot_grid(
+  plot_cell_trajectory(cds, color_by='timepoint'),
+  plot_cell_trajectory(cds_cc, color_by='timepoint'),
+  plot_cell_trajectory(cds_pm_umi, color_by='timepoint'),
+  plot_cell_trajectory(cds_pm_umi_cc, color_by='timepoint')
+)
+  
+```
+
+It does not seem a good idea to regress percent.mito and nUMI out. 
+
+Are there clusters specific to one branch in the cell cycle regressed out trajectory? 
+
+```{r fig2, fig.height = 12, fig.width = 10, fig.align = "center"}
+plot_cell_trajectory(cds_cc, color_by='res.1.5') + facet_wrap(~res.1.5)
+```
+
+
+
+```{r}
+DimPlot(seurobj, reduction.use='tsne18', group.by='res.1.5', pt.size=0.1, do.label=T)
+```
+
+```{r}
+plot_cell_trajectory(cds_cc, group_by='State')
+```
+
+
+```{r}
+markers_monocle_states <- read.table('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/markergenes/180831/markers_monocle-states', header=T)
+markers_monocle_states['gene'] <- rownames(markers_monocle_states) 
+```
+

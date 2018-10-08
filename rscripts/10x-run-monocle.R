@@ -1,9 +1,9 @@
-.libPaths("/usr/local/lib64/R/library")
+
 .libPaths('/raid5/home/cbmr/pytrik/libraries')
 
 setwd('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/scripts-10x-analysis/rscripts/')
 
-r.seed <- 11
+r.seed <- 66
 
 library(optparse)
 

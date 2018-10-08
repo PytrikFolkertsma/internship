@@ -10,6 +10,7 @@ output:
 
 ```{r}
 library(Seurat)
+library(dplyr)
 
 seurobj <- readRDS('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/10x-180831')
 aligned <- readRDS('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/10x-180831-aligned')
@@ -35,7 +36,7 @@ PCElbowPlot(seurobj, num.pc=50) #The elbow is at 6 pcs. Run tSNE on both 6, 18 a
 
 #Data visualization
 
-Interesting to see: T4 and T5 contain a lot more variation than T1, T2 and T3, and PC2 seems to split T4 and T5 (most cells getting a negative PC2 score, but some cells getting a positive PC2 score). Could the split in PC2 describe the cells developing into white or brown? 
+Interesting to see: T4 and T5 contain a lot more variation than T1, T2 and T3, and PC2 seems to split T4 and T5. Could the split in PC2 describe the cells developing into white or brown? 
 
 ```{r}
 PCAPlot(seurobj, group.by='timepoint', pt.size=0.1)
@@ -95,8 +96,9 @@ FeaturePlot(seurobj, reduction.use='tsne18', features.plot = 'nGene', cols.use=c
 Shared correlation per CC.
 
 ```{r}
-load('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/MetageneBicorPlots')
-ccplot_aligned
+#Make again
+#load('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/MetageneBicorPlots')
+#ccplot_aligned
 ```
 
 12 CC's were used for tSNE.
@@ -105,9 +107,6 @@ ccplot_aligned
 TSNEPlot(aligned, group.by='timepoint', pt.size=0.1)
 ```
 
-```{r}
-TSNEPlot(aligned, group.by='Phase', pt.size=0.1)
-```
 
 #Aligning T1 with old data
 
@@ -258,30 +257,76 @@ VlnPlot(seurobj, features.plot=c('UCP1', 'DIO2', 'CIDEA', 'PPARGC1A', 'PPARA', '
 COX7A1 seems like the only interesting gene. Let's see if it's higher expressed in certain clusters.
 
 ```{r fig8, fig.height = 4, fig.width = 10, fig.align = "center"}
-VlnPlot(seurobj, features.plot='COX7A1', group.by='res.0.5', point.size.use = -1)
+VlnPlot(seurobj, features.plot='COX7A1', group.by='res.1.5', point.size.use = -1)
 ```
 
-It does seem to be higher expressed in cluster 10 (T5).
+It does seem to be higher expressed in cluster 16 (T5).
 
 ```{r}
-DimPlot(seurobj, reduction.use='tsne18', group.by='res.0.5', pt.size=0.1)
+DimPlot(seurobj, reduction.use='tsne18', group.by='res.1.5', pt.size=0.1, do.label=T)
 ```
 
 ```{r}
-DimPlot(seurobj, reduction.use='tsne18', group.by='timepoint', pt.size=0.1)
+FeaturePlot(seurobj, cols.use=c('gray', 'blue'), no.legend=F, features.plot=toupper('Cox7a1'), reduction.use='tsne18')
 ```
 
-Expression of EBF2 in clusters.
+#Markers from DE tests
 
-```{r fig9, fig.height = 4, fig.width = 10, fig.align = "center"}
-VlnPlot(seurobj, features.plot='EBF2', group.by='res.0.5', point.size.use = -1)
+Negbinom test between clusters res.1.5.
+
+```{r}
+markers_res1.5 <- read.table('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/markergenes/180831/markers_res.1.5_negbinom', header=T)
+```
+
+The top 10 markers per cluster
+
+```{r}
+#markers_res1.5 %>% arrange(cluster, desc(avg_logFC)) %>% top_n(10, cluster)
+top10 <- markers_res1.5 %>% arrange(desc(avg_logFC)) %>% group_by(cluster) %>% top_n(10, avg_logFC) %>% arrange(cluster)
+top10
+```
+
+```{r}
+DimPlot(seurobj, reduction.use='tsne18', group.by='res.1.5', pt.size=0.1, do.label=T)
+```
+
+
+
+```{r}
+top10_orderedLogFC <- top10[order(-top10$avg_logFC),]
+top10_orderedLogFC
+```
+
+Genes with the highest avg_logFC. 
+
+```{r fig12, fig.height=45, fig.width=15, fig.align="center"}
+FeaturePlot(seurobj, reduction.use='tsne18', features.plot=as.vector(unique(top10_orderedLogFC$gene[1:20])), cols.use=c('gray', 'blue'), no.legend=F, nCol = 2)
+```
+
+
+Cluster 6 and 7
+
+```{r fig13, fig.height=10, fig.width=15, fig.align="center"}
+FeaturePlot(seurobj, reduction.use='tsne18', features.plot=c('PLA2G2A', 'SAA1', 'MT1X'), cols.use=c('gray', 'blue'), no.legend=F, nCol = 2)
+```
+
+Heatmap of the top 10 marker genes per cluster
+
+```{r}
+DoHeatmap(SetAllIdent(seurobj, id='res.1.5'), genes.use=top10$gene, remove.key=T, slim.col.label = T)
+```
+
+```{r}
+DimPlot(seurobj, group.by='res.1.5', reduction.use='tsne18', pt.size=0.1, do.label=T)
 ```
 
 
 #DE mixture cluster
 
 ```{r}
-markers.mixture <- read.table('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/markergenes/180831/markers_mixture_negbinom', sep='\t', header=T)
+markers.mixture <- read.table('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/markergenes/180831/markers_res.0.7_negbinom', sep='\t', header=T)
+markers.mixture <- markers.mixture[markers.mixture$avg_logFC < 0.05,]
+markers.mixture <- markers.mixture[markers.mixture$cluster == 13,]
 ```
 
 Positive markers mixture cluster.
@@ -302,6 +347,77 @@ MALAT1 and NEAT1 again in the top. A lot of the negative markers for the mixture
 VlnPlot(SetAllIdent(seurobj, id='res.0.5'), ident.include=11,  features.plot=as.vector(markers.mixture[order(markers.mixture$avg_logFC),'gene'][1:10]), group.by='timepoint', point.size.use=0.5, nCol=5)
 ```
 
+#Stressed cells?
+
+```{r}
+stress_genes <- read.table('/raid5/projects/timshel/sc-arc_lira/src/data-genelists/171219-van_den_Brink2017-genes_affected_by_dissociation.csv', header=T) %>% pull(1)
+```
 
 
+```{r}
+de_genes <- read.table('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/markergenes/180831/markers_res.0.7_negbinom', header=T)
+de_genes <- de_genes[de_genes$p_val_adj < 0.05,]
+```
+
+Cluster 13 is the mixture cluster. Check MALAT1 and NEAT1 to be sure: 
+
+```{r fig14, fig.height = 3, fig.width = 10, fig.align = "center"}
+VlnPlot(seurobj, group.by='res.0.7', features.plot=c('MALAT1', 'NEAT1'), point.size.use =-1)
+```
+
+Are any of the stress genes DE genes for the mixture cluster?
+
+```{r}
+de_genes_pos <- de_genes[de_genes$avg_logFC > 0, ]
+de_genes_neg <- de_genes[de_genes$avg_logFC < 0, ]
+
+intersect_pos <- list()
+intersect_neg <- list()
+n_pos <- list()
+n_neg <- list()
+perc_pos <- list()
+perc_neg <- list()
+
+for (i in unique(de_genes$cluster)){
+  c <- paste('cluster', i)
+
+  genes_pos <- de_genes_pos[de_genes_pos$cluster == i, 'gene']
+  genes_neg <- de_genes_neg[de_genes_neg$cluster == i, 'gene']
+  
+  intersect_pos[[c]] <- length(intersect(toupper(stress_genes), genes_pos))
+  intersect_neg[[c]] <- length(intersect(toupper(stress_genes), genes_neg))
+  n_pos[[c]] <- length(genes_pos)
+  n_neg[[c]] <- length(genes_neg)
+  perc_pos[[c]] <- (intersect_pos[[c]] / n_pos[[c]]) * 100
+  perc_neg[[c]] <- (intersect_neg[[c]] / n_neg[[c]]) * 100
+}
+
+data.frame(
+  shared.pos.genes=unlist(intersect_pos),
+  shared.neg.genes=unlist(intersect_neg),
+  n_pos=unlist(n_pos),
+  n_neg=unlist(n_neg),
+  perc_pos=unlist(perc_pos),
+  perc_neg=unlist(perc_neg)
+  )
+
+```
+
+
+
+```{r}
+mixture_genes_pos <- de_genes_pos[de_genes_pos$cluster == 13, ]
+mixture_genes_neg <- de_genes_neg[de_genes_neg$cluster == 13, ]
+intersect(toupper(stress_genes), mixture_genes_pos$gene)
+```
+
+
+```{r fig15, fig.height = 3, fig.width = 10, fig.align = "center"}
+VlnPlot(seurobj, features.plot=intersect(toupper(stress_genes), mixture_genes_pos$gene), point.size.use=-1, group.by='res.0.7', nCol=2)
+```
+
+
+```{r fig16, fig.height = 3, fig.width = 5, fig.align = "center"}
+VlnPlot(seurobj, features.plot='TXN', point.size.use=-1, group.by='res.0.7', nCol=2)
+```
 

@@ -1,0 +1,23 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(Seurat)
+library(SingleCellExperiment)
+```
+ 
+
+```{r}
+klein <- readRDS('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/downloads/klein.rds')
+```
+
+```{r}
+#counts(sce_10x) <- as.matrix(counts(sce_10x))
+#logcounts(sce_10x) <- as.matrix(logcounts(sce_10x))
+logcounts_malat1 <- logcounts(klein)[rownames(klein) == 'Malat1',]
+hist(counts_malat1)
+```
+
+
