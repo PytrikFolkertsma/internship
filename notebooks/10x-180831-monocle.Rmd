@@ -1,60 +1,122 @@
 ---
-title: "R Notebook"
-output: html_notebook
+title: "10x-180831 Monocle analysis"
+output:
+  html_document:
+    df_print: paged
+    toc: true
+    toc_float: 
+      smooth_scroll: true
 ---
 
-Monocle2 analysis. The DE genes for cluster res.1.5 were used for ordering (~2631 genes). The analysis was run 4 times: with no variables regressed out, with the percent.mito and nUMI regressed out, with cell cycle effects regressed out and with all these variables regressed out. 
-
 ```{r}
-library(monocle)
 library(Seurat)
-
-seurobj <- readRDS('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/10x-180831')
-
-cds <- readRDS('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/monocle/180831/10x-180831-monocle')
-cds_cc <- readRDS('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/monocle/180831/10x-180831-monocle-cc')
-cds_pm_umi <- readRDS('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/monocle/10x-180831-monocle-pm-umi2')
-cds_pm_umi_cc <- readRDS('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/monocle/10x-180831-monocle-pm-umi-cc2')
+library(monocle)
+seurobj <- readRDS('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/10x-180831-noreg')
 ```
 
 
-```{r fig1, fig.height = 8, fig.width = 10, fig.align = "center"}
-plot_grid(
+#DE genes res.0.5 T1T2T3 and T4T5 combined - unregressed/unfiltered data
+
+```{r}
+cds <- readRDS('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/monocle/180831/monocle_DEgenes-res.0.5-noreg-T1T2T3-T4T5-combined/10x-180831-noreg-monocle')
+```
+
+```{r}
+plot_cell_trajectory(cds, color_by = 'timepoint')
+```
+
+```{r}
+plot_cell_trajectory(cds, color_by = 'Pseudotime')
+```
+
+```{r}
+plot_cell_trajectory(cds, color_by = 'State')
+```
+
+#DE genes res.1.5 T1T2T3 and T4T5 combined - unregressed/unfiltered data
+
+```{r}
+cds <- readRDS('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/monocle/180831/monocle_DEgenes-res.1.5-noreg-T1T2T3-T4T5-combined/10x-180831-noreg-monocle')
+```
+
+
+```{r fig1, fig.height = 10, fig.width = 5, fig.align = "center"}
+plot_grid(ncol=1,
   plot_cell_trajectory(cds, color_by='timepoint'),
-  plot_cell_trajectory(cds_cc, color_by='timepoint'),
-  plot_cell_trajectory(cds_pm_umi, color_by='timepoint'),
-  plot_cell_trajectory(cds_pm_umi_cc, color_by='timepoint')
+  plot_cell_trajectory(cds, color_by='Pseudotime'),
+  plot_cell_trajectory(cds, color_by='State')
 )
-  
-```
-
-It does not seem a good idea to regress percent.mito and nUMI out. 
-
-Are there clusters specific to one branch in the cell cycle regressed out trajectory? 
-
-```{r fig2, fig.height = 12, fig.width = 10, fig.align = "center"}
-plot_cell_trajectory(cds_cc, color_by='res.0.7') + facet_wrap(~res.0.7)
-```
-
-
-
-```{r}
-DimPlot(seurobj, reduction.use='tsne18', group.by='res.1.5', pt.size=0.1, do.label=T)
-```
-
-```{r}
-plot_cell_trajectory(cds_cc, group_by='State')
 ```
 
 
 ```{r}
-
+data <- readRDS('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/10x-180831-noreg')
+data <- AddMetaData(data, pData(cds)['State'])
+saveRDS(data, '/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/10x-180831-noreg')
 ```
 
 ```{r}
-markers_monocle_states <- read.table('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/markergenes/180831/markers_monocle-states', header=T)
-markers_monocle_states['gene'] <- rownames(markers_monocle_states) 
-rownames(markers_monocle_states) <- NULL
-markers_monocle_states
+#DE genes between state 3 and state 2. 
+markers_state3 <- read.table('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/markergenes/180831/markers_10x-180831-noreg-res.1.5-monocle-state-3', header=T)
 ```
 
+
+##Branch DE genes expression
+
+Positive genes for state 2. 
+
+```{r}
+markers_state3 <- markers_state3[markers_state3$p_val_adj < 0.05,]
+markers_state3_pos <- markers_state3[order(-markers_state3$avg_logFC),]
+markers_state3_pos
+```
+
+Negative genes for state 3 / positive genes for state 3. 
+
+```{r}
+markers_state3_neg <- markers_state3[order(markers_state3$avg_logFC),]
+markers_state3_neg
+```
+
+DE genes state 2
+
+```{r fig2, fig.height = 10, fig.width = 10, fig.align = "center"}
+VlnPlot(seurobj, group.by='State', features.plot=as.vector(markers_state3_pos$gene[1:9]), point.size.use=-1, nCol=3)
+```
+
+DE genes state 3
+
+```{r fig3, fig.height = 9, fig.width = 10, fig.align = "center"}
+VlnPlot(seurobj, group.by='State', features.plot=as.vector(markers_state3_neg$gene[1:9]), point.size.use=-1, nCol=3)
+```
+
+Expression of DE genes for state 2
+
+```{r fig4, fig.height = 18, fig.width = 10, fig.align = "center"}
+FeaturePlot(seurobj, features.plot=as.vector(markers_state3_pos$gene[1:10]), cols.use=c('gray', 'blue'), no.legend=F, nCol=2)
+```
+
+Expression of DE genes for state 3
+
+```{r fig5, fig.height = 18, fig.width = 10, fig.align = "center"}
+FeaturePlot(seurobj, features.plot=as.vector(markers_state3_neg$gene[1:10]), cols.use=c('gray', 'blue'), no.legend=F, nCol=2)
+```
+
+```{r}
+TSNEPlot(seurobj, group.by='timepoint', pt.size=0.1)
+```
+
+
+##Genes plotted over pseudotime
+
+
+```{r fig8, fig.height = 12, fig.width = 10, fig.align = "center"}
+
+cds_subset <- cds[row.names(subset(fData(cds), gene_short_name %in% c("FABP5", "SCD", "G0S2", "ADIPOQ", "APOD", "MGP", "PLAC9", "DCN"))),]
+#plot_genes_in_pseudotime(cds_subset, color_by="timepoint")
+
+plot_genes_branched_pseudotime(cds_subset,
+                       branch_point = 1,
+                       color_by = "timepoint",
+                       ncol = 2)
+```

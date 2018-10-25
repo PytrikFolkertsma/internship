@@ -25,6 +25,10 @@ library(dplyr)
 
 setwd('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/scripts-10x-analysis/rscripts/')
 
+output_prefix <- unlist(strsplit(opt$file, '/'))[length(unlist(strsplit(opt$file, '/')))]
+print('file name')
+print(output_prefix)
+
 print('Reading data')
 data <- readRDS(opt$file)
 data <- SetAllIdent(data, id=opt$colname)
@@ -47,7 +51,7 @@ names(list_of_dfs.all_markers) <- cluster_ids # set names so bind_rows will get 
 df.cluster_markers <- bind_rows(list_of_dfs.all_markers, .id="cluster") #combine list of dfs into a single data frame
 
 print('saving dataframe marker genes')
-write.table(df.cluster_markers, file=paste(opt$outdir, 'markergenes-', opt$colname, opt$test, sep=''), sep='\t', row.names=F, quote=F)
+write.table(df.cluster_markers, file=paste(opt$outdir, 'markers_', output_prefix, '_', opt$colname, '_', opt$test, sep=''), sep='\t', row.names=F, quote=F)
 
 
 

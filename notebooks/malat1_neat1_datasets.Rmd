@@ -1,6 +1,8 @@
 ---
 title: "R Notebook"
-output: html_notebook
+output:
+  html_document:
+    df_print: paged
 ---
 
 ```{r}
@@ -25,20 +27,26 @@ VlnPlot(klein, features.plot=c('Malat1', 'Neat1'), point.size.use=0.1, group.by=
 
 ```{r}
 load('/data/rna-seq/gtex/v7-seurat_objs/gtex.seurat_obj.gene_tpm.RData')
+gtex <- seurat_obj
 ```
 
 
 ```{r fig1, fig.height=8, fig.width=10, fig.align="center"}
-VlnPlot(seurat_obj, features.plot=c('ENSG00000251562', 'ENSG00000245532'), point.size.use=0.1, group.by='SMTS', nCol=1, x.lab.rot = T)
+VlnPlot(gtex, features.plot=c('ENSG00000251562', 'ENSG00000245532'), point.size.use=0.1, group.by='SMTS', nCol=1, x.lab.rot = T)
 ```
 
 ```{r}
-subset <- FilterCells(seurat_obj, subset.names=c('ENSG00000251562', 'ENSG00000245532'), high.thresholds=c(0.5, 0.5))
+subset_gtex <- FilterCells(gtex, subset.names=c('ENSG00000251562', 'ENSG00000245532'), high.thresholds=c(0.5, 0.5))
+#325 samples
 ```
 
 ```{r}
-cells <- as.data.frame(table(subset@meta.data$SMTSD))
-cells[order(-cells$Freq),]
+
+cells <- merge(as.data.frame(table(subset_gtex@meta.data$SMTSD)), as.data.frame(table(gtex@meta.data$SMTSD)), by='Var1')
+names(cells) <- c('Subtissue', 'Freq', 'Nr of cells in subtissue')
+cells['fraction'] <- cells$Freq / cells$`Nr of cells in subtissue`
+
+cells[order(-cells$fraction),]
 ```
 
 
@@ -47,19 +55,41 @@ cells[order(-cells$Freq),]
 
 ```{r}
 load('/data/pub-others/tabula_muris/figshare/180126-facs/maca.seurat_obj.facs.figshare_180126.RData')
+maca <- seurat_obj
 ```
 
 ```{r fig2, fig.height=8, fig.width=10, fig.align="center"}
-VlnPlot(seurat_obj, features.plot=c('Malat1', 'Neat1'), point.size.use=0.1, group.by='tissue', nCol=1, x.lab.rot = T)
+VlnPlot(maca, features.plot=c('Malat1', 'Neat1'), point.size.use=0.1, group.by='tissue', nCol=1, x.lab.rot = T)
 ```
 
 ```{r}
-subset <- FilterCells(seurat_obj, subset.names=c('Malat1', 'Neat1'), high.thresholds=c(0.5, 0.5))
+subset_maca <- FilterCells(maca, subset.names=c('Malat1', 'Neat1'), high.thresholds=c(0.5, 0.5))
+#3847 samples
 ```
 
 ```{r}
 #{r fig3, fig.height=8, fig.width=10, fig.align="center"}
-cells <- as.data.frame(table(subset@meta.data$cell_ontology_class))
+
+cells <- merge(as.data.frame(table(subset_maca@meta.data$cell_ontology_class)), as.data.frame(table(maca@meta.data$cell_ontology_class)), by='Var1')
+names(cells) <- c('Subtissue', 'Freq', 'Nr of cells in subtissue')
+cells['fraction'] <- cells$Freq / cells$`Nr of cells in subtissue`
+
+cells[order(-cells$fraction),]
+
+```
+
+
+#GTEx
+
+```{r}
+subset_gtex2 <- FilterCells(gtex, subset.names=c('ENSG00000251562', 'ENSG00000245532', 'ENSG00000197061', 'ENSG00000142871'), high.thresholds=c(0.5, 0.5, 0.5, 0.5))
+```
+
+```{r}
+cells <- merge(as.data.frame(table(subset_gtex2@meta.data$SMTSD)), as.data.frame(table(gtex@meta.data$SMTSD)), by='Var1')
+names(cells) <- c('Subtissue', 'Freq', 'Nr of cells in subtissue')
+cells['fraction'] <- cells$Freq / cells$`Nr of cells in subtissue`
+
 cells[order(-cells$Freq),]
 ```
 

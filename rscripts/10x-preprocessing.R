@@ -20,7 +20,7 @@ library(magrittr)
 library(dplyr)
 
 n.pcs <- 15
-resolutions <- c(0.5, 0.6, 0.7, 0.8, 0.9, 1)
+resolutions <- c(0.5, 0.7, 1, 1.5)
 
 ################################################################################
 
@@ -99,11 +99,11 @@ print('CLUSTERING')
 print('finding variable genes')
 seurobj <- FindVariableGenes(seurobj, do.plot=F)
 print('running pca')
-seurobj <- RunPCA(seurobj, pcs.compute=20, do.print=F)
+seurobj <- RunPCA(seurobj, pcs.compute=50, do.print=F)
 
 print('running clustering')
 for (res in resolutions){
-  seurobj <- FindClusters(seurobj, reduction.type = "pca", dims.use = 1:n.pcs, resolution = res, print.output = 0, save.SNN = TRUE)
+  seurobj <- FindClusters(seurobj, reduction.type = "pca", dims.use = 1:n.pcs, resolution = res, print.output = 0, save.SNN = TRUE, force.recalc=T)
 }
 
 ################################################################################

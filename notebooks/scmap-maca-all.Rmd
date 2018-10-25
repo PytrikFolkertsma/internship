@@ -70,7 +70,7 @@ predictions_all[order(-predictions_all$Freq),]
 ```
 
 
-A lot of the cells got labeled unassigned (22,101 cells from a total of 56,371). This is much less when only using the old MACA fat dataset as reference (then, only 8,110 cells got labeled unassigned). This could be because there are multiple celltypes in the dataset that are likely the same (for example, adipose mesenchymal stem cells, bladder mesenchymal stem cells and thymus mesenchymal stem cells are all mesenchymal stem cells). Scmap requires that for every cell in our dataset to be assigned a certain celltype, the 3 nearest neighbors from the reference dataset should have that celltype. So say we have some mesenchymal cells in our data, then a lot of our cells will be unassigned because the nearest neighbors will be both bladder mesenchymal, thymus mesenchymal and adipose mesenchymal.
+A lot of the cells got labeled unassigned (22,101 cells from a total of 56,371). This is much less when only using the old MACA fat dataset as reference (then, only 8,110 cells got labeled unassigned). This is probably because the different celltypes are not limited to specific clusters.
 
 A lot of annotations for mammary stromal cell. Mesenchymal cells are multipotent stromal cells: https://en.wikipedia.org/wiki/Mesenchymal_stem_cell. Stromal cells are connective tissue cells of any organ.
 
@@ -209,7 +209,7 @@ TSNEPlot(all10x, group.by='sample_name', pt.size=0.1, do.label=T)
 
 #Inspection of the MACA data
 
-I performed PCA and tSNE (20 pc's) on the MACA data.
+Performed PCA and tSNE (20 pc's) on the MACA data.
 
 ```{r}
 maca <- readRDS('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/downloads/MACA_data_PCA_tSNE')
@@ -382,7 +382,26 @@ TSNEPlot(all10x, group.by='sample_name', pt.size=0.1, do.label=T)
 ```
 
 
-```{r}
+#Scmap-cell
 
+```{r}
+set.seed(33)
+```
+
+```{r}
+sce_maca <- indexCell(sce_maca)
+```
+
+```{r}
+dim(metadata(sce_maca)$scmap_cell_index$subclusters)
+```
+
+```{r}
+scmapCell_results <- scmapCell(
+  sce_maca, #sce_10x <<<<
+  list(
+    yan = metadata(sce_maca)$scmap_cell_index
+  )
+)
 ```
 

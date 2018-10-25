@@ -7,7 +7,7 @@
 ### 180831_T1_old should be aligned on ... cc's
 
 n.ccs <- 30
-n.ccs.use <- 12
+n.ccs.use <- 15
 
 .libPaths('/home/cbmr/pytrik/libraries/')
 setwd('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/scripts-10x-analysis/rscripts/')

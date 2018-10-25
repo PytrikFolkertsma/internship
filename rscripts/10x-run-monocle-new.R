@@ -8,13 +8,14 @@ library(optparse)
 option_list <- list(
   make_option(c('-f', '--file'), type='character', help='Path to the dataset to run Monocle on.'),
   make_option(c('-o', '--outdir'), type='character', help='Output directory.'),
-  make_option(c('-r', '--regressout'), type='character', help="OPTIONAL. Choose from 'pm-umi', 'pm-umi-cc' or 'cc'.", default='none')
+  make_option(c('-r', '--regressout'), type='character', help="OPTIONAL. Choose from 'pm-umi', 'pm-umi-cc' or 'cc'.", default='none'),
+  make_option(c('-g', '--genelist'), type='character', help='Path to a list of genes to use for ordering.')
 )
 
 optionparser <- OptionParser(option_list=option_list)
 opt <- parse_args(optionparser)
 
-if (is.null(opt$file) || is.null(opt$outdir)){
+if (is.null(opt$file) || is.null(opt$outdir) || is.null(opt$genelist)){
   print_help(optionparser)
   quit()  
 }
@@ -35,11 +36,6 @@ library(Seurat)
 print('LOADING SEURAT OBJECT')
 seurat_object <- readRDS(opt$file)
 
-if(!is.null(opt$samplingdown)){
-  seurat_object <- SubsetData(SetAllIdent(seurat_object, id='sample_name'), max.cells.per.ident=1000, random.seed=r.seed)
-}
-
-setwd(opt$outdir)
 output_prefix <- unlist(strsplit(opt$file, '/'))[length(unlist(strsplit(opt$file, '/')))]
 
 run_monocle_workflow <- function(data, output_name){
@@ -63,9 +59,9 @@ run_monocle_workflow <- function(data, output_name){
   #     - Select genes with high dispersion across cells. 
   #     - Use known marker genes.
 
-  print('Using differentially expressed genes between clusters res.1.5 for ordering.')
-  
-  ordering_genes <- read.table('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/markergenes/180831/markers_res.1.5_negbinom_filtered-pval_genes-only')$V1
+  #DE genes for cluster res.1 in T1+T2+T3 and T4+T5 combined.
+  ordering_genes <- read.table(opt$genelist)$V1
+
   print(paste('Nr of genes:', length(ordering_genes)))
   
   print('Seting ordering filter...')
@@ -91,6 +87,8 @@ run_monocle_workflow <- function(data, output_name){
   cds <- orderCells(cds)
   
   ###SAVE CDS
+  
+  setwd(opt$outdir)
   
   if (opt$regressout == 'none'){
     print(paste("Saving CDS as ", output_name, " in ", opt$outdir, "'.", sep=''))
