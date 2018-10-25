@@ -20,7 +20,7 @@ Analysis of the 10x samples.
 library(Seurat)
 library(ggplot2)
 library(dplyr)
-all10x <- readRDS('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/10x')
+all10x <- readRDS('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/10x-180504')
 ```
 
 #tSNE Plots
@@ -36,17 +36,17 @@ TSNEPlot(all10x, pt.size=0.1, group.by='sample_name', do.label=T)
 tSNE plots of samples within their subtissue.
 Peri2 and Peri3 seem to overlap really well, as well as Supra1 and Supra2, and Visce1 and Visce3.
 
-```{r results='hide'}
+```{r echo=T, results='hide', include=FALSE}
 subtissues <- all10x@meta.data$sample_name2
-t1 <- TSNEPlot(all10x, cells.use=all10x@cell.names[which(subtissues %in% 'Peri')], group.by='sample_name', pt.size=0.2)$plot
-t2 <- TSNEPlot(all10x, cells.use=all10x@cell.names[which(subtissues %in% 'Subq')], group.by='sample_name', pt.size=0.2)$plot
-t3 <- TSNEPlot(all10x, cells.use=all10x@cell.names[which(subtissues %in% 'Supra')], group.by='sample_name', pt.size=0.2)$plot
-t4 <- TSNEPlot(all10x, cells.use=all10x@cell.names[which(subtissues %in% 'Visce')], group.by='sample_name', pt.size=0.2)$plot
+t1 <- TSNEPlot(all10x, cells.use=all10x@cell.names[which(subtissues %in% 'Peri')], group.by='sample_name', pt.size=0.2)
+t2 <- TSNEPlot(all10x, cells.use=all10x@cell.names[which(subtissues %in% 'Subq')], group.by='sample_name', pt.size=0.2)
+t3 <- TSNEPlot(all10x, cells.use=all10x@cell.names[which(subtissues %in% 'Supra')], group.by='sample_name', pt.size=0.2)
+t4 <- TSNEPlot(all10x, cells.use=all10x@cell.names[which(subtissues %in% 'Visce')], group.by='sample_name', pt.size=0.2)
 ```
 
 
 ```{r}
-#plot_grid(t1, t2, t3, t4)
+plot_grid(t1, t2, t3, t4)
 ```
 
 
@@ -69,28 +69,10 @@ res=0.5
 TSNEPlot(all10x, pt.size=0.1, group.by='res.0.5', do.label=T)
 ```
 
-res=0.6
-
-```{r}
-TSNEPlot(all10x, pt.size=0.1, group.by='res.0.6')
-```
-
 res=0.7
 
 ```{r}
 TSNEPlot(all10x, pt.size=0.1, group.by='res.0.7', do.label=T)
-```
-
-res=0.8
-
-```{r}
-TSNEPlot(all10x, pt.size=0.1, group.by='res.0.8', do.label=T)
-```
-
-res=0.9
-
-```{r}
-TSNEPlot(all10x, pt.size=0.1, group.by='res.0.9', do.label=T)
 ```
 
 res=1
@@ -102,7 +84,7 @@ TSNEPlot(all10x, pt.size=0.1, group.by='res.1', do.label=T)
 #Cell cycle regression
 
 ```{r}
-all10x.ccregout <- readRDS('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/10x-ccregout')
+all10x.ccregout <- readRDS('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/10x-180504-ccregout')
 ```
 
 tSNE of the cell cycle regressed out. There does not seem to be a lot of structure within samples now. 
@@ -118,13 +100,21 @@ TSNEPlot(all10x.ccregout, pt.size=0.1, group.by='Phase')
 
 Subtissues
 
-```{r}
+```{r echo=T, results='hide', include=FALSE}
 subtissues <- all10x.ccregout@meta.data$sample_name2
-t1 <- TSNEPlot(all10x.ccregout, cells.use=all10x.ccregout@cell.names[which(subtissues %in% 'Peri')], group.by='sample_name', pt.size=0.2)$plot
-t2 <- TSNEPlot(all10x.ccregout, cells.use=all10x.ccregout@cell.names[which(subtissues %in% 'Subq')], group.by='sample_name', pt.size=0.2)$plot
-t3 <- TSNEPlot(all10x.ccregout, cells.use=all10x.ccregout@cell.names[which(subtissues %in% 'Supra')], group.by='sample_name', pt.size=0.2)$plot
-t4 <- TSNEPlot(all10x.ccregout, cells.use=all10x.ccregout@cell.names[which(subtissues %in% 'Visce')], group.by='sample_name', pt.size=0.2)$plot
-#plot_grid(t1, t2, t3, t4)
+t1 <- TSNEPlot(all10x.ccregout, cells.use=all10x.ccregout@cell.names[which(subtissues %in% 'Peri')], group.by='sample_name', pt.size=0.2)
+t2 <- TSNEPlot(all10x.ccregout, cells.use=all10x.ccregout@cell.names[which(subtissues %in% 'Subq')], group.by='sample_name', pt.size=0.2)
+t3 <- TSNEPlot(all10x.ccregout, cells.use=all10x.ccregout@cell.names[which(subtissues %in% 'Supra')], group.by='sample_name', pt.size=0.2)
+t4 <- TSNEPlot(all10x.ccregout, cells.use=all10x.ccregout@cell.names[which(subtissues %in% 'Visce')], group.by='sample_name', pt.size=0.2)
+
+```
+
+```{r}
+plot_grid(t1, t2, t3, t4)
+```
+
+```{r}
+TSNEPlot(all10x.ccregout, pt.size=0.1, group.by='sample_name2')
 ```
 
 
@@ -155,8 +145,8 @@ PCAPlot(all10x.ccregout, group.by='sample_name', pt.size=0.1)
 Alignment of the data with and without cell cycle effects regressed out. Both were aligned on 30 subspaces, tSNE was performed on the first 15 CCs. 
 
 ```{r}
-data.aligned <- readRDS('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/10x-aligned')
-data.aligned.ccregout <- readRDS('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/10x-ccregout-aligned')
+data.aligned <- readRDS('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/10x-180504-aligned')
+data.aligned.ccregout <- readRDS('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/10x-180504-ccregout-aligned')
 ```
 
 tSNE of the aligned data.

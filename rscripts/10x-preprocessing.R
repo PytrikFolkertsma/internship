@@ -1,26 +1,38 @@
 
 ################################################################################
 #
-# Creates a Seurat object of the 10x samples. Executes the following steps:
+# Creates a Seurat object of the 10x 180504 samples. Executes the following steps:
 # - Adds all metadata
-# - Filters, normalizes and scales data (regresses out nUMI and percent.mito)
-# - Calculates clusters (using 15 PC's based on elbow plot) of several resolutions 
+# - Filters, normalizes and scales data (filters genes 200-9000, 
+#   percent.mito < 0.08, nUMI < 110000, regresses out nUMI and percent.mito)
+# - Computes clusters (using 15 PC's based on elbow plot) of several resolutions 
 #   and adds them to metadata
 # - Calculates cell cycle scores and adds them to metadata
 # - Performs tSNE (15 PC's (determined before from elbow plot), default perplexity)
 #
 ################################################################################
 
-
 .libPaths('/home/cbmr/pytrik/libraries/')
-setwd('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/')
 
 library(Seurat)
 library(magrittr)
 library(dplyr)
+library(optparse)
 
 n.pcs <- 15
 resolutions <- c(0.5, 0.7, 1, 1.5)
+
+option_list <- list(
+  make_option(c('-o', '--output_folder'), type='character', help='Path to the output folder.')
+)
+
+optionparser <- OptionParser(option_list=option_list)
+opt <- parse_args(optionparser)
+
+if(is.null(opt$output_folder)){
+  print_help(optionparser)
+  quit()
+}
 
 ################################################################################
 
@@ -33,7 +45,7 @@ seurobj <- CreateSeuratObject(df.10x, min.cells = 3, min.genes = 200, is.expr = 
 
 print('ADDING METADATA')
 
-samples_info <- read.table('data/downloads/180406-Cell ID and 10x sample Index_final-extracted columns.txt', sep='\t', header=T, stringsAsFactors=F)
+samples_info <- read.table('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/downloads/180406-Cell ID and 10x sample Index_final-extracted columns.txt', sep='\t', header=T, stringsAsFactors=F)
 samples_info.ordered <- rbind(samples_info[13:14,], samples_info[1:12,])
 
 #get the metadata
@@ -48,7 +60,7 @@ age <- samples_info.ordered$AGE
 sample_names[1] <- 'Supra_4'
 sample_names[2] <- 'Subq_4'
 
-#get second labeling (only supra, subq, peri and visce)
+#get depot labeling (supra, subq, peri or visce)
 sample_names2 <- unlist(lapply(sample_names, function(x){
   return(substring(x, 0, nchar(x)-2))
 }))
@@ -56,7 +68,7 @@ sample_names2 <- unlist(lapply(sample_names, function(x){
 #extract the indices from the cellnames
 sample_agg_idx <- as.numeric(sapply(strsplit(seurobj@cell.names, split = "-"), '[[', 2))
 
-#assign the correct sample names
+#create metadata df
 df.metadata <- data.frame(row.names=seurobj@cell.names,
                           sample_name2=sample_names2[sample_agg_idx],
                           sample_name=sample_names[sample_agg_idx],
@@ -75,12 +87,9 @@ print(seurobj@meta.data %>% count(sample_name))
 
 print('QUALITY CONTROL')
 
-print('calculating percent.ribo and percent.mito')
-ribo.genes <- grep(pattern = "^Rp[sl][[:digit:]]", x = rownames(seurobj@data), value = TRUE)
+print('calculating percent.mito')
 mito.genes <- grep(pattern = "^MT-", x = rownames(seurobj@data), value = TRUE, ignore.case=TRUE)
-percent.ribo <- Matrix::colSums(seurobj@raw.data[ribo.genes, ])/Matrix::colSums(seurobj@raw.data)
 percent.mito <- Matrix::colSums(seurobj@raw.data[mito.genes, ])/Matrix::colSums(seurobj@raw.data)
-seurobj <- AddMetaData(seurobj, metadata=percent.ribo, col.name="percent.ribo")
 seurobj <- AddMetaData(seurobj, metadata=percent.mito, col.name="percent.mito")
 
 print('filter cells')
@@ -103,14 +112,14 @@ seurobj <- RunPCA(seurobj, pcs.compute=50, do.print=F)
 
 print('running clustering')
 for (res in resolutions){
-  seurobj <- FindClusters(seurobj, reduction.type = "pca", dims.use = 1:n.pcs, resolution = res, print.output = 0, save.SNN = TRUE, force.recalc=T)
+  seurobj <- FindClusters(seurobj, reduction.type = "pca", dims.use = 1:n.pcs, resolution = res, print.output = 0, save.SNN = TRUE)
 }
 
 ################################################################################
 
 print('CALCULATING CC SCORES')
 
-cc.genes <- readLines('data/downloads/regev_lab_cell_cycle_genes.txt')
+cc.genes <- readLines('/projects/pytrik/sc_adipose/data/downloads/regev_lab_cell_cycle_genes.txt')
 s.genes <- cc.genes[1:43]
 g2m.genes <- cc.genes[44:97]
 seurobj <- CellCycleScoring(seurobj, s.genes = s.genes, g2m.genes = g2m.genes, set.ident = TRUE)
@@ -125,6 +134,6 @@ seurobj <- RunTSNE(seurobj, reduction.use='pca', dims.use=1:n.pcs)
 
 print('SAVING DATASET')
 
-print('saving dataset as 10x')
-saveRDS(seurobj, 'data/10x')
+print('saving dataset as 10x-180504')
+saveRDS(seurobj, paste(opt$output_folder, '/10x-180504'))
 
