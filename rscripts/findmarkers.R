@@ -1,12 +1,10 @@
-.libPaths('/home/cbmr/pytrik/libraries/')
-
 library(optparse)
 
 option_list <- list(
   make_option(c('-f', '--file'), type='character', help='Path to the dataset.'),
-  make_option(c('-c', '--colname'), type='character', help='Metadata column to use for finding marker genes'),
+  make_option(c('-c', '--colname'), type='character', help='Metadata column to use for finding marker genes. Will test each group against the rest.'),
   make_option(c('-o', '--outdir'), type='character', help='Output directory'),
-  make_option(c('-t', '--test'), type='character', help='Test to use. E.g. negbinom or wilcox.')
+  make_option(c('-t', '--test'), type='character', help='Test to use. Default is negative binomial.', default='negbinom')
 )
 
 optionparser <- OptionParser(option_list=option_list)

@@ -1,7 +1,7 @@
 
 ################################################################################
 #
-# Creates a Seurat object of the 10x 180504 samples. Executes the following steps:
+# Creates a Seurat object of the 10x-180504 samples. Executes the following steps:
 # - Adds all metadata
 # - Filters, normalizes and scales data (filters genes 200-9000, 
 #   percent.mito < 0.08, nUMI < 110000, regresses out nUMI and percent.mito)
@@ -11,8 +11,6 @@
 # - Performs tSNE (15 PC's (determined before from elbow plot), default perplexity)
 #
 ################################################################################
-
-.libPaths('/home/cbmr/pytrik/libraries/')
 
 library(Seurat)
 library(magrittr)
@@ -60,8 +58,10 @@ age <- samples_info.ordered$AGE
 sample_names[1] <- 'Supra_4'
 sample_names[2] <- 'Subq_4'
 
+######CHANGE SAMPLE_NAME2 TO DEPOT<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
 #get depot labeling (supra, subq, peri or visce)
-sample_names2 <- unlist(lapply(sample_names, function(x){
+depots <- unlist(lapply(sample_names, function(x){
   return(substring(x, 0, nchar(x)-2))
 }))
 
@@ -70,7 +70,7 @@ sample_agg_idx <- as.numeric(sapply(strsplit(seurobj@cell.names, split = "-"), '
 
 #create metadata df
 df.metadata <- data.frame(row.names=seurobj@cell.names,
-                          sample_name2=sample_names2[sample_agg_idx],
+                          depot=depots[sample_agg_idx],
                           sample_name=sample_names[sample_agg_idx],
                           diff=diff[sample_agg_idx],
                           ucp1.ctrl=ucp1.ctrl[sample_agg_idx],

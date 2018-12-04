@@ -6,9 +6,10 @@ library(Seurat)
 library(magrittr)
 library(dplyr)
 
-n.pcs <- 20
+n.pcs <- 21
 
-resolutions <- c(0.3, 0.5, 0.7, 1, 1.2, 1.5, 2)
+resolutions <- c(0.5, 0.7, 1, 1.5)
+#resolutions <- c(0.3, 0.5, 0.7, 1, 1.2, 1.5, 2)
 #resolutions <- c(0.5)
 
 ################################################################################
@@ -97,7 +98,7 @@ for (res in resolutions){
 
 print('CALCULATING CC SCORES')
 
-cc.genes <- readLines('data/downloads/regev_lab_cell_cycle_genes.txt')
+cc.genes <- readLines('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/downloads/regev_lab_cell_cycle_genes.txt')
 s.genes <- cc.genes[1:43]
 g2m.genes <- cc.genes[44:97]
 seurobj <- CellCycleScoring(seurobj, s.genes = s.genes, g2m.genes = g2m.genes, set.ident = TRUE)

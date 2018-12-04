@@ -1,0 +1,301 @@
+---
+title: "10x-180831 Monocle analysis"
+output:
+  html_document:
+    df_print: paged
+    toc: true
+    toc_float: 
+      smooth_scroll: true
+---
+
+```{r}
+library(Seurat)
+library(monocle)
+library(pheatmap)
+seurobj <- readRDS('../../10x-adipocyte-analysis/output/10x-180831')
+```
+
+#DE genes res.0.5 T1T2T3 and T4T5 combined - unregressed/unfiltered data
+
+```{r}
+cds <- readRDS('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/monocle/180831/monocle_DEgenes-res.0.5-noreg-T1T2T3-T4T5-combined/10x-180831-noreg-monocle')
+```
+
+```{r}
+plot_cell_trajectory(cds, color_by = 'timepoint')
+```
+
+#DE genes res.1.5 T1T2T3 and T4T5 combined - unregressed/unfiltered data
+
+```{r}
+cds <- readRDS('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/monocle/180831/monocle_DEgenes-res.1.5-noreg-T1T2T3-T4T5-combined/10x-180831-noreg-monocle')
+```
+
+
+```{r fig1, fig.height = 16, fig.width = 5, fig.align = "center"}
+fig <- plot_grid(ncol=1,
+  plot_cell_trajectory(cds, color_by='timepoint'),
+  plot_cell_trajectory(cds, color_by='Pseudotime'),
+  plot_cell_trajectory(cds, color_by='State'),
+  plot_cell_trajectory(cds, color_by = "State") + scale_color_manual(values=c("#f67770", "#964B00", "orange"), name = "State"))
+fig
+
+#save_plot('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/plots_slides/monocle_plots.pdf', fig, base_width=5, base_height=16)
+
+#save_plot('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/plots_slides/monocle_timepoint.png', plot_cell_trajectory(cds, color_by='timepoint'), base_width=7.5, base_height=6)
+
+#save_plot('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/plots_slides/monocle_pseudotime.png', plot_cell_trajectory(cds, color_by='Pseudotime'), base_width=7.5, base_height=6)
+
+#save_plot('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/plots_slides/monocle_state.png', plot_cell_trajectory(cds, color_by='State'), base_width=7.5, base_height=6)
+
+#save_plot('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/plots_slides/monocle_prediction.png', plot_cell_trajectory(cds, color_by = "State") + scale_color_manual(values=c("#f67770", "#964B00", "orange"), name = "State"), base_width=7.5, base_height=6)
+```
+
+
+```{r}
+plot_cell_trajectory(cds, color_by = "timepoint") + geom_point(color='white', size=5) + geom_point(aes(colour=timepoint), alpha=0.1)
+```
+
+```{r}
+plot_cell_trajectory(cds, color_by = "timepoint") + geom_point(color='white', size=5) + geom_point(aes(colour=timepoint), alpha=0.01)
+```
+
+
+```{r}
+#data <- readRDS('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/10x-180831-noreg')
+#data <- AddMetaData(data, pData(cds)['State'])
+#saveRDS(data, '/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/10x-180831-noreg')
+```
+
+#BEAM
+
+BEAM takes as input a CellDataSet that's been ordered with orderCells and the name of a branch point in the trajectory. It returns a table of significance scores for each gene. Genes that score significant are said to be branch-dependent in their expression.
+
+```{r}
+#BEAM_res <- BEAM(cds, branch_point = 1, cores = 1)
+load('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/monocle/180831/BEAM')
+BEAM_res <- BEAM_res[order(BEAM_res$qval),]
+BEAM_res <- BEAM_res[,c("gene_short_name", "pval", "qval")]
+```
+
+
+```{r}
+paste('Significant genes with q-val < 0.01:', length(BEAM_res$qval[BEAM_res$qval < 0.01]))
+paste('Significant genes with q-val < 0.001:', length(BEAM_res$qval[BEAM_res$qval < 0.001]))
+paste('Significant genes with q-val < 0.0001:', length(BEAM_res$qval[BEAM_res$qval < 0.0001]))
+paste('Significant genes with q-val < 0.00001:', length(BEAM_res$qval[BEAM_res$qval < 0.00001]))
+paste('Significant genes with q-val = 0:', length(BEAM_res$qval[BEAM_res$qval == 0]))
+```
+
+Histograms of p-values and q-values
+
+```{r}
+hist(BEAM_res$pval)
+```
+
+```{r}
+hist(BEAM_res$qval)
+```
+
+
+You can visualize changes for all the genes that are significantly branch dependent using a special type of heatmap. This heatmap shows changes in both lineages at the same time. It also requires that you choose a branch point to inspect. Columns are points in pseudotime, rows are genes, and the beginning of pseudotime is in the middle of the heatmap. As you read from the middle of the heatmap to the right, you are following one lineage through pseudotime. As you read left, the other. The genes are clustered hierarchically, so you can visualize modules of genes that have similar lineage-dependent expression patterns.
+
+
+```{r}
+# branched_8 <- plot_genes_branched_heatmap(cds[row.names(subset(BEAM_res,
+#                                          qval < 0.0001)),],
+#                                          branch_point = 1,
+#                                          num_clusters = 8,
+#                                          cores = 10,
+#                                          show_rownames = F,
+#                                        return_heatmap = T, 
+#                                        branch_labels = c("Cell fate 1 (State 2)", "Cell fate 2 (State 3)"),
+#                                        branch_colors = c('#f67770', '#1bb840', '#649efc')
+#                                        )
+```
+
+Heatmaps for all genes with q-val < 0.0001 (6421 genes), 6, 8 and 10 clusters.
+
+```{r}
+load('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/branched2') 
+```
+
+Nr of genes per cluster
+
+```{r}
+print('6 CLUSTERS')
+for (i in 1:length(unique(branched_6$annotation_row$Cluster))){
+  cluster <- rownames(branched_6$annotation_row)[branched_6$annotation_row$Cluster == i]
+  print(paste('Nr of genes in cluster ', i, ': ', length(cluster), sep=''))
+}
+
+print('8 CLUSTERS')
+for (i in 1:length(unique(branched_8$annotation_row$Cluster))){
+  cluster <- rownames(branched_8$annotation_row)[branched_8$annotation_row$Cluster == i]
+  print(paste('Nr of genes in cluster ', i, ': ', length(cluster), sep=''))
+}
+
+print('10 CLUSTERS')
+for (i in 1:length(unique(branched_10$annotation_row$Cluster))){
+  cluster <- rownames(branched_10$annotation_row)[branched_10$annotation_row$Cluster == i]
+  print(paste('Nr of genes in cluster ', i, ': ', length(cluster), sep=''))
+}
+
+```
+
+```{r}
+save_plot("/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/plots_slides/BEAM_qval0.0001_6clusters.png", branched_6$ph_res, base_width=5, base_height=6)
+
+save_plot("/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/plots_slides/BEAM_qval0.0001_8clusters.png", branched_8$ph_res, base_width=5, base_height=6)
+
+save_plot("/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/plots_slides/BEAM_qval0.0001_10clusters.png", branched_10$ph_res, base_width=5, base_height=6)
+```
+
+```{r fig1, fig.height = 6, fig.width = 5, fig.align = "center"}
+grid::grid.rect(gp=grid::gpar("fill", col=NA))
+grid::grid.draw(branched_6$ph_res$gtable)
+```
+
+
+Write BEAM results to files
+
+```{r}
+
+for (i in 1:length(unique(branched_10$annotation_row$Cluster))){
+  BEAM_cluster <- BEAM_res[BEAM_res$gene_short_name %in% row.names(branched_10$annotation_row)[branched_10$annotation_row == i],]
+  write.table(BEAM_cluster, paste('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/files_301118/10clusters/cluster', i, '.txt', sep=''), row.names=F, quote=F, sep='\t')
+}
+```
+
+
+GSEA
+
+```{r}
+
+```
+
+
+##Genes plotted over pseudotime
+
+
+```{r fig8, fig.height = 15, fig.width = 10, fig.align = "center"}
+
+cds_subset <- cds[row.names(subset(fData(cds), gene_short_name %in% c("FABP5", "SCD", "G0S2", "ADIPOQ", "APOD", "MGP", "PLAC9", "DCN", "MT-CYB", 'CYB5A'))),]
+#plot_genes_in_pseudotime(cds_subset, color_by="timepoint")
+
+plot_genes_branched_pseudotime(cds_subset, branch_point = 1, color_by = "timepoint", ncol = 2)
+```
+
+```{r}
+save_plot("/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/plots_slides/genes_in_pseudotime.png", plot_genes_branched_pseudotime(cds_subset, branch_point = 1, color_by = "timepoint", ncol = 2), base_width=10, base_height=15)
+```
+
+C/EBPa more important in white. C/EBPb and C/EBPd more important in brown (described in several reviews). Weird to see it the other way around in our data.
+
+```{r fig9, fig.height = 15, fig.width = 10, fig.align = "center"}
+
+cds_subset <- cds[row.names(subset(fData(cds), gene_short_name %in% c('EBF2', 'PDGFRA', 'PDGFRB', 'PPARG', 'MALAT1', 'NEAT1', 'PRDM16', 'CEBPA', 'CEBPB', 'CEBPD', 'UCP1', 'LEP'))),]
+#plot_genes_in_pseudotime(cds_subset, color_by="timepoint")
+
+plot_genes_branched_pseudotime(cds_subset, branch_point = 1, color_by = "timepoint", ncol = 2)
+
+save_plot("/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/plots_slides/genes_in_pseudotime.png", plot_genes_branched_pseudotime(cds_subset, branch_point = 1, color_by = "timepoint", ncol = 2), base_width=10, base_height=15)
+```
+
+```{r fig9, fig.height = 15, fig.width = 10, fig.align = "center"}
+
+cds_subset <- cds[row.names(subset(fData(cds), gene_short_name %in% c('EBF2', 'PDGFRA', 'PDGFRB', 'PPARG', 'MALAT1', 'NEAT1', 'PRDM16', 'CEBPA', 'CEBPB', 'CEBPD', 'UCP1', 'LEP'))),]
+
+plot_genes_branched_pseudotime(cds_subset, branch_point = 1, color_by = "State", ncol = 2)
+
+save_plot("/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/plots_slides/genes_in_pseudotime2.png", plot_genes_branched_pseudotime(cds_subset, branch_point = 1, color_by = "State", ncol = 2), base_width=10, base_height=15)
+```
+
+
+#Monocle analysis T4T5
+
+```{r}
+cds_t4t5 <- readRDS('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/10x-adipocyte-analysis/output/monocle/180831/10x-180831-T4T5-genelist-monocle')
+```
+
+Used DE genes between T4 and T5.
+
+```{r}
+plot_cell_trajectory(cds_t4t5, color_by='timepoint')
+```
+
+
+Used genes with a high dispersion for ordering. 
+
+```{r}
+#genes with high dispersion used
+cds_2 <- readRDS('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/10x-adipocyte-analysis/output/monocle/180831/10x-180831-T4T5-monocle')
+```
+
+```{r}
+plot_cell_trajectory(cds_2, color_by='timepoint')
+```
+
+```{r}
+plot_cell_trajectory(cds_2, color_by='State')
+```
+
+
+DE genes between T4 and T5
+
+```{r}
+
+```
+
+
+
+##Branch DE genes expression
+
+```{r}
+#DE genes between state 3 and state 2. 
+markers_state3 <- read.table('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/markergenes/180831/markers_10x-180831-noreg-res.1.5-monocle-state-3', header=T)
+```
+
+Positive genes for state 2. 
+
+```{r}
+markers_state3 <- markers_state3[markers_state3$p_val_adj < 0.05,]
+markers_state3_pos <- markers_state3[order(-markers_state3$avg_logFC),]
+markers_state3_pos
+```
+
+Negative genes for state 3 / positive genes for state 3. 
+
+```{r}
+markers_state3_neg <- markers_state3[order(markers_state3$avg_logFC),]
+markers_state3_neg
+```
+
+DE genes state 2
+
+```{r fig2, fig.height = 10, fig.width = 10, fig.align = "center"}
+VlnPlot(seurobj, group.by='State', features.plot=as.vector(markers_state3_pos$gene[1:9]), point.size.use=-1, nCol=3)
+```
+
+DE genes state 3
+
+```{r fig3, fig.height = 9, fig.width = 10, fig.align = "center"}
+VlnPlot(seurobj, group.by='State', features.plot=as.vector(markers_state3_neg$gene[1:9]), point.size.use=-1, nCol=3)
+```
+
+Expression of DE genes for state 2
+
+```{r fig4, fig.height = 18, fig.width = 10, fig.align = "center"}
+FeaturePlot(seurobj, features.plot=as.vector(markers_state3_pos$gene[1:10]), cols.use=c('gray', 'blue'), no.legend=F, nCol=2)
+```
+
+Expression of DE genes for state 3
+
+```{r fig5, fig.height = 18, fig.width = 10, fig.align = "center"}
+FeaturePlot(seurobj, features.plot=as.vector(markers_state3_neg$gene[1:10]), cols.use=c('gray', 'blue'), no.legend=F, nCol=2)
+```
+
+```{r}
+TSNEPlot(seurobj, group.by='timepoint', pt.size=0.1)
+```
+

@@ -59,8 +59,14 @@ run_monocle_workflow <- function(data, output_name){
   #     - Select genes with high dispersion across cells. 
   #     - Use known marker genes.
 
-  #DE genes for cluster res.1 in T1+T2+T3 and T4+T5 combined.
-  ordering_genes <- read.table(opt$genelist)$V1
+  if (is.null(opt$genelist)){
+    print('Selecting genes for ordering with high dispersion...')
+    disp_table <- dispersionTable(cds)
+    ordering_genes <- subset(disp_table, mean_expression >= 0.5 & dispersion_empirical >= 1 * dispersion_fit)$gene_id
+    print(paste('Nr of genes selected:', length(ordering_genes)))
+  } else {
+    ordering_genes <- read.table(opt$genelist)$V1
+  }
 
   print(paste('Nr of genes:', length(ordering_genes)))
   

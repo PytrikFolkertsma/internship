@@ -200,7 +200,8 @@ predicted_labels_fat <- as.data.frame(
     x=as.vector(scmapCluster_results_fat$scmap_cluster_labs))
 names(predicted_labels_fat) <- 'predicted_labels_fat'
 all10x <- AddMetaData(all10x, metadata=predicted_labels_fat, col.name='predicted_labels_fat')
-TSNEPlot(all10x, group.by='predicted_labels_fat', pt.size=0.1, do.label=T)
+t1 <- TSNEPlot(all10x, group.by='predicted_labels_fat', pt.size=0.1)
+save_plot("/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/plots_slides/scmap.pdf", t1, base_width=8, base_height = 5)
 ```
 
 ```{r}

@@ -94,4 +94,39 @@ write.table(all_genes, col.names=F, row.names=F, file='/projects/pytrik/sc_adipo
 t <- as.data.frame(table(discarded.cells@meta.data$sample_name))
 barplot(t$Freq, names.arg=t$Var1, las=2, main='Discarded cells from alignment')
 
+####GET DEPOT MARKERS
+brown_markers <- read.table('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/markergenes/180504/markers_10x-180504_brown', header=T)
+brown_markers <- brown_markers[brown_markers$p_val_adj < 0.05,]
+brown_markers_pos <- brown_markers[brown_markers$avg_logFC > 0.25,]
+brown_markers_neg <- brown_markers[brown_markers$avg_logFC < -0.25,]
 
+white_markers <- read.table('/projects/pytrik/sc_adipose/analyze_10x_fluidigm/data/markergenes/180504/markers_10x-180504_white', header=T)
+white_markers <- white_markers[white_markers$p_val_adj < 0.05,]
+white_markers_pos <- white_markers[white_markers$avg_logFC > 0.25,]
+white_markers_neg <- white_markers[white_markers$avg_logFC < -0.25,]
+
+getIntersectingGenes <- function(df, depot){
+  samples <- as.character(unique(all10x@meta.data$sample_name[all10x@meta.data$depot == depot]))
+  genes <- df[df$sample_name == samples[1], 'gene']
+  for (sample in samples[2:length(samples)]){
+    genes <- intersect(genes, df[df$sample_name == sample, 'gene'])
+  }
+  print(paste('Nr of genes for ', depot, ': ', length(genes), sep=''))
+  return(genes)
+}
+
+#Peri 
+peri_pos <- getIntersectingGenes(brown_markers_pos, 'Peri') #12
+peri_neg <- getIntersectingGenes(brown_markers_neg, 'Peri') #9
+
+#Supra
+supra_pos <- getIntersectingGenes(brown_markers_pos, 'Supra') #4
+supra_neg <- getIntersectingGenes(brown_markers_neg, 'Supra') #3
+
+#Visce
+visce_pos <- getIntersectingGenes(white_markers_pos, 'Visce') #4
+visce_neg <- getIntersectingGenes(white_markers_neg, 'Visce') #25
+
+#Subq
+subq_pos <- getIntersectingGenes(white_markers_pos, 'Subq') #4
+subq_neg <- getIntersectingGenes(white_markers_neg, 'Subq') #7

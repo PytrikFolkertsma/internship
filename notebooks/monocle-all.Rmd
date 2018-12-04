@@ -105,4 +105,3 @@ plot_cell_trajectory(data5.cc, color_by = "res.0.5") +
 plot_cell_trajectory(data5.cc, color_by = "samplename", cell_size=0.2, show_branch_points=F) +
     facet_wrap(~samplename, nrow = 3)
 ```
-
